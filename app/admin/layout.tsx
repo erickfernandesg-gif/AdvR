@@ -34,7 +34,7 @@ export default function AdminLayout({
     if (supabase) {
       await supabase.auth.signOut();
     }
-    router.push('/login');
+    router.push('/');
     router.refresh();
   };
 
@@ -48,6 +48,7 @@ export default function AdminLayout({
 
   const navItems = [
     { label: 'Dashboard', href: '/admin', icon: 'dashboard' },
+    { label: 'Editor CMS', href: '/admin/editor', icon: 'edit_note' },
     { label: 'Páginas (CMS)', href: '/admin/pages', icon: 'description' },
     { label: 'Leads Qualificados', href: '/admin/leads', icon: 'group' },
     { label: 'Configurações', href: '/admin/settings', icon: 'settings' },
@@ -56,7 +57,7 @@ export default function AdminLayout({
   return (
     <div className="flex h-screen bg-secondary/30 text-foreground">
       {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-border flex flex-col shadow-sm">
+      <aside className="w-72 bg-background border-r border-border flex flex-col shadow-sm">
         <div className="p-8 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">

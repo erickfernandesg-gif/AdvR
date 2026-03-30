@@ -1,5 +1,5 @@
 import { getPageBlocks } from '@/lib/db';
-import AdminPageEditor from '@/components/AdminPageEditor';
+import AdminPagesClient from '@/components/AdminPagesClient';
 
 export default async function AdminPages() {
   const homeBlocks = (await getPageBlocks('/')) || [];
@@ -8,81 +8,13 @@ export default async function AdminPages() {
   const blogBlocks = (await getPageBlocks('/blog')) || [];
   const contatoBlocks = (await getPageBlocks('/contato')) || [];
 
-  return (
-    <div className="space-y-12">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-4xl font-display font-extrabold text-foreground tracking-tight text-gradient-electric">Páginas (CMS)</h1>
-          <p className="text-muted-foreground font-light">Gerencie o conteúdo estratégico do site AdvR.</p>
-        </div>
-      </div>
+  const pagesData = [
+    { title: 'Home - AdvR', slug: '/', blocks: homeBlocks },
+    { title: 'Empresa - AdvR', slug: '/empresa', blocks: empresaBlocks },
+    { title: 'Soluções - AdvR', slug: '/solucoes', blocks: solucoesBlocks },
+    { title: 'Blog (Insights) - AdvR', slug: '/blog', blocks: blogBlocks },
+    { title: 'Contato - AdvR', slug: '/contato', blocks: contatoBlocks },
+  ];
 
-      <div className="grid grid-cols-1 gap-12">
-        {/* Home */}
-        <div className="bento-card !p-0 overflow-hidden">
-          <div className="p-8 border-b border-border bg-secondary/50 flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-display font-bold text-foreground">Home - AdvR</h2>
-              <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-1">Slug: /</p>
-            </div>
-          </div>
-          <div className="p-8">
-            <AdminPageEditor initialBlocks={homeBlocks} />
-          </div>
-        </div>
-
-        {/* Empresa */}
-        <div className="bento-card !p-0 overflow-hidden">
-          <div className="p-8 border-b border-border bg-secondary/50 flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-display font-bold text-foreground">Empresa - AdvR</h2>
-              <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-1">Slug: /empresa</p>
-            </div>
-          </div>
-          <div className="p-8">
-            <AdminPageEditor initialBlocks={empresaBlocks} />
-          </div>
-        </div>
-
-        {/* Solucoes */}
-        <div className="bento-card !p-0 overflow-hidden">
-          <div className="p-8 border-b border-border bg-secondary/50 flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-display font-bold text-foreground">Soluções - AdvR</h2>
-              <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-1">Slug: /solucoes</p>
-            </div>
-          </div>
-          <div className="p-8">
-            <AdminPageEditor initialBlocks={solucoesBlocks} />
-          </div>
-        </div>
-
-        {/* Blog */}
-        <div className="bento-card !p-0 overflow-hidden">
-          <div className="p-8 border-b border-border bg-secondary/50 flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-display font-bold text-foreground">Blog (Insights) - AdvR</h2>
-              <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-1">Slug: /blog</p>
-            </div>
-          </div>
-          <div className="p-8">
-            <AdminPageEditor initialBlocks={blogBlocks} />
-          </div>
-        </div>
-
-        {/* Contato */}
-        <div className="bento-card !p-0 overflow-hidden">
-          <div className="p-8 border-b border-border bg-secondary/50 flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-display font-bold text-foreground">Contato - AdvR</h2>
-              <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mt-1">Slug: /contato</p>
-            </div>
-          </div>
-          <div className="p-8">
-            <AdminPageEditor initialBlocks={contatoBlocks} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <AdminPagesClient pagesData={pagesData} />;
 }

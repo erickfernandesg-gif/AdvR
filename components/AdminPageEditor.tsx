@@ -6,6 +6,7 @@ import { supabase } from '@/lib/db';
 function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, content: any) => Promise<void> }) {
   const [editContent, setEditContent] = useState(block.content || {});
   const [saving, setSaving] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
@@ -15,7 +16,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
 
   const renderField = (key: string, value: any, onChange: (val: any) => void) => {
     if (typeof value === 'string') {
-      if (value.length > 100 || key.includes('description') || key.includes('subtitle')) {
+      if (value.length > 100 || key.includes('description') || key.includes('subtitle') || key.includes('text')) {
         return (
           <textarea
             className="w-full bg-secondary border border-border rounded-xl p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
@@ -53,7 +54,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
               {typeof item === 'string' ? (
                 <input
                   type="text"
-                  className="w-full bg-white border border-border rounded-xl p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all pr-12"
+                  className="w-full bg-secondary border border-border rounded-xl p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all pr-12"
                   value={item}
                   onChange={(e) => {
                     const newArr = [...value];
@@ -116,47 +117,69 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
   };
 
   return (
-    <div className="bg-white rounded-[2rem] p-8 border border-border shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-center mb-10 border-b border-border pb-6">
-        <div>
-          <h4 className="font-display font-extrabold text-foreground text-2xl capitalize tracking-tight">{block.block_name.replace(/_/g, ' ')}</h4>
-          <div className="flex items-center gap-4 mt-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-secondary px-3 py-1 rounded-full">Ordem: {block.order_index}</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 px-3 py-1 rounded-full">Ativo</span>
+    <div className={`glass-panel rounded-2xl border transition-all duration-200 overflow-hidden ${isExpanded ? 'border-primary shadow-md ring-1 ring-primary/20' : 'border-border hover:border-white/20'}`}>
+      <button 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex justify-between items-center p-6 focus:outline-none text-left"
+      >
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${isExpanded ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
+            <span className="material-symbols-outlined text-2xl">
+              {block.block_name.includes('hero') ? 'web_asset' : 
+               block.block_name.includes('contact') ? 'contact_mail' : 
+               block.block_name.includes('footer') ? 'bottom_panel' : 'view_agenda'}
+            </span>
+          </div>
+          <div>
+            <h4 className="font-display font-extrabold text-foreground text-lg capitalize tracking-tight">{block.block_name.replace(/_/g, ' ')}</h4>
+            <div className="flex items-center gap-3 mt-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full">Ordem: {block.order_index}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">Ativo</span>
+            </div>
           </div>
         </div>
-      </div>
+        <span className={`material-symbols-outlined text-muted-foreground transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}>
+          expand_more
+        </span>
+      </button>
       
-      <div className="space-y-8">
-        {Object.entries(editContent).map(([key, value]) => (
-          <div key={key}>
-            <label className="block text-xs font-bold uppercase tracking-widest text-foreground mb-3 capitalize">{key.replace(/_/g, ' ')}</label>
-            {renderField(key, value, (newVal) => {
-              setEditContent({ ...editContent, [key]: newVal });
-            })}
+      {isExpanded && (
+        <div className="p-6 pt-0 border-t border-border/50 bg-black/20">
+          <div className="space-y-6 mt-6">
+            {Object.entries(editContent).map(([key, value]) => (
+              <div key={key}>
+                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 capitalize">{key.replace(/_/g, ' ')}</label>
+                {renderField(key, value, (newVal) => {
+                  setEditContent({ ...editContent, [key]: newVal });
+                })}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      
-      <div className="flex justify-end mt-12 pt-8 border-t border-border">
-        <button 
-          onClick={handleSave}
-          disabled={saving}
-          className="btn-electric !py-3 !px-8 text-sm uppercase tracking-widest disabled:opacity-50"
-        >
-          {saving ? (
-            <><span className="material-symbols-outlined animate-spin text-sm">progress_activity</span> Sincronizando...</>
-          ) : (
-            <><span className="material-symbols-outlined text-sm">save</span> Atualizar Bloco</>
-          )}
-        </button>
-      </div>
+          
+          <div className="flex justify-end mt-8 pt-6 border-t border-border/50">
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-primary text-primary-foreground px-6 py-2.5 rounded-full font-bold hover:bg-primary/90 transition-colors shadow-md flex items-center gap-2 disabled:opacity-70"
+            >
+              {saving ? (
+                <><span className="material-symbols-outlined animate-spin text-sm">progress_activity</span> Sincronizando...</>
+              ) : (
+                <><span className="material-symbols-outlined text-sm">save</span> Atualizar Bloco</>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function AdminPageEditor({ initialBlocks }: { initialBlocks: any[] }) {
   const [blocks, setBlocks] = useState(initialBlocks || []);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'success' | 'error'>('success');
 
   const handleSave = async (blockId: string, newContent: any) => {
     try {
@@ -173,10 +196,16 @@ export default function AdminPageEditor({ initialBlocks }: { initialBlocks: any[
       }
       
       setBlocks(blocks.map(b => b.id === blockId ? { ...b, content: newContent } : b));
-      alert('Conteúdo atualizado com sucesso!');
+      setModalType('success');
+      setModalMessage('Conteúdo atualizado com sucesso!');
+      setShowModal(true);
+      setTimeout(() => setShowModal(false), 3000);
     } catch (error) {
       console.error('Error saving block:', error);
-      alert('Erro ao atualizar conteúdo.');
+      setModalType('error');
+      setModalMessage('Erro ao atualizar conteúdo.');
+      setShowModal(true);
+      setTimeout(() => setShowModal(false), 3000);
     }
   };
 
@@ -190,7 +219,29 @@ export default function AdminPageEditor({ initialBlocks }: { initialBlocks: any[
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 relative">
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-background border border-border rounded-2xl p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center animate-in fade-in zoom-in duration-200">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${modalType === 'success' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+              <span className="material-symbols-outlined text-3xl">
+                {modalType === 'success' ? 'check_circle' : 'error'}
+              </span>
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">
+              {modalType === 'success' ? 'Sucesso!' : 'Erro!'}
+            </h3>
+            <p className="text-muted-foreground">{modalMessage}</p>
+            <button 
+              onClick={() => setShowModal(false)}
+              className="mt-6 px-6 py-2 bg-secondary text-foreground rounded-full font-medium hover:bg-secondary/80 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
       {blocks.map((block: any) => (
         <BlockEditor key={block.id || block.block_name} block={block} onSave={handleSave} />
       ))}

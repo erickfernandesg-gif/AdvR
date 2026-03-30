@@ -14,8 +14,11 @@ export async function getGlobalSettings() {
     address: 'Av. Paulista, 1000 - São Paulo, SP',
     phone_number: '+55 11 9999-9999',
     email_contact: 'contato@advr.com.br',
+    logo_url: '',
     google_analytics_id: '',
-    custom_script_head: ''
+    custom_script_head: '',
+    linkedin_url: '',
+    instagram_url: ''
   };
 }
 
@@ -200,7 +203,7 @@ export async function getPageBlocks(slug: string) {
           subtitle: 'Nossa tecnologia proprietária foi desenhada para lidar com a complexidade da remuneração variável de grandes corporações.',
           primary_button: 'Solicitar Demo',
           secondary_button: 'Ver Documentação',
-          image_url: 'https://images.unsplash.com/photo-1551288049-bbb6518147ad?auto=format&fit=crop&q=80'
+          image_url: 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80'
         }
       },
       {
@@ -281,8 +284,84 @@ export async function getPageBlocks(slug: string) {
 
 export async function getLeads() {
   if (supabase) {
-    const { data } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
-    if (data) return data;
+    try {
+      const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      return [];
+    }
   }
   return [];
+}
+
+export async function getLeadsCount() {
+  if (supabase) {
+    try {
+      const { count, error } = await supabase.from('leads').select('*', { count: 'exact', head: true });
+      if (error) throw error;
+      return count || 0;
+    } catch (error) {
+      console.error('Error fetching leads count:', error);
+      return 0;
+    }
+  }
+  return 0;
+}
+
+export async function getNewLeadsCount() {
+  if (supabase) {
+    try {
+      const { count, error } = await supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'novo');
+      if (error) throw error;
+      return count || 0;
+    } catch (error) {
+      console.error('Error fetching new leads count:', error);
+      return 0;
+    }
+  }
+  return 0;
+}
+
+export async function getPages() {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('pages').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching pages:', error);
+      return [];
+    }
+  }
+  return [];
+}
+
+export async function getPagesCount() {
+  if (supabase) {
+    try {
+      const { count, error } = await supabase.from('pages').select('*', { count: 'exact', head: true });
+      if (error) throw error;
+      return count || 0;
+    } catch (error) {
+      console.error('Error fetching pages count:', error);
+      return 0;
+    }
+  }
+  return 0;
+}
+
+export async function getBlocksCount() {
+  if (supabase) {
+    try {
+      const { count, error } = await supabase.from('page_blocks').select('*', { count: 'exact', head: true });
+      if (error) throw error;
+      return count || 0;
+    } catch (error) {
+      console.error('Error fetching blocks count:', error);
+      return 0;
+    }
+  }
+  return 0;
 }

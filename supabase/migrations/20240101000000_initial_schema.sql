@@ -73,3 +73,45 @@ CREATE POLICY "Admins have full access to global_settings" ON global_settings US
 CREATE POLICY "Admins have full access to pages" ON pages USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Admins have full access to page_blocks" ON page_blocks USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Admins have full access to leads" ON leads USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+ALTER TABLE global_settings ADD COLUMN IF NOT EXISTS logo_url TEXT;
+
+-- Create storage bucket for logos if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('logos', 'logos', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Set up storage policies for the 'logos' bucket
+-- 1. Allow public read access to logos
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'logos');
+
+-- 2. Allow authenticated users to upload logos
+CREATE POLICY "Authenticated Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'logos' AND auth.role() = 'authenticated');
+
+-- 3. Allow authenticated users to update/delete logos
+CREATE POLICY "Authenticated Update" ON storage.objects FOR UPDATE USING (bucket_id = 'logos' AND auth.role() = 'authenticated');
+CREATE POLICY "Authenticated Delete" ON storage.objects FOR DELETE USING (bucket_id = 'logos' AND auth.role() = 'authenticated');
+
+-- 1. Adicionar a coluna 'description' caso ela não exista
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS description TEXT;
+
+-- 2. Agora inserir as páginas padrão (isso fará o contador mostrar "5")
+INSERT INTO pages (slug, title, description)
+VALUES 
+  ('/', 'Home', 'Página principal da AdvR'),
+  ('/empresa', 'Empresa', 'Sobre a história e cultura da AdvR'),
+  ('/solucoes', 'Soluções', 'Detalhes sobre o Motor Colossus e serviços'),
+  ('/blog', 'Blog', 'Insights e artigos técnicos'),
+  ('/contato', 'Contato', 'Página de agendamento e contato')
+ON CONFLICT (slug) DO UPDATE 
+SET title = EXCLUDED.title, 
+    description = EXCLUDED.description;
+
+-- 3. Inserir um Lead de teste (opcional)
+INSERT INTO leads (nome, email, empresa, status)
+VALUES ('Lead de Teste', 'teste@empresa.com', 'Empresa Exemplo', 'novo')
+ON CONFLICT DO NOTHING;
+
+ALTER TABLE global_settings
+ADD COLUMN linkedin_url TEXT,
+ADD COLUMN instagram_url TEXT;

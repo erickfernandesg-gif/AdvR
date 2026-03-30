@@ -55,6 +55,7 @@ export default function Navbar() {
             <Link href="/empresa" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/empresa' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Empresa</Link>
             <Link href="/solucoes" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/solucoes' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Soluções</Link>
             <Link href="/blog" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/blog' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Insights</Link>
+            <Link href="/novidades" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/novidades' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Novidades</Link>
             <Link href="/contato" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/contato' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Contato</Link>
           </nav>
 
@@ -105,6 +106,7 @@ export default function Navbar() {
               <Link href="/empresa" className={`text-2xl font-display font-bold ${pathname === '/empresa' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Empresa</Link>
               <Link href="/solucoes" className={`text-2xl font-display font-bold ${pathname === '/solucoes' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Soluções</Link>
               <Link href="/blog" className={`text-2xl font-display font-bold ${pathname === '/blog' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Insights</Link>
+              <Link href="/novidades" className={`text-2xl font-display font-bold ${pathname === '/novidades' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Novidades</Link>
               <Link href="/contato" className={`text-2xl font-display font-bold ${pathname === '/contato' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Contato</Link>
             </nav>
 

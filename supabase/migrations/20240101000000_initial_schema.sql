@@ -115,3 +115,22 @@ ON CONFLICT DO NOTHING;
 ALTER TABLE global_settings
 ADD COLUMN linkedin_url TEXT,
 ADD COLUMN instagram_url TEXT;
+
+--novas colunas para integração com o NN mais o linkedin
+-- Cria a tabela para as postagens do LinkedIn
+CREATE TABLE public.novidades_linkedin (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    titulo TEXT,
+    conteudo TEXT NOT NULL,
+    url_imagem TEXT,
+    url_postagem TEXT,
+    data_publicacao TIMESTAMP WITH TIME ZONE,
+    criado_em TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Permite que qualquer pessoa leia as postagens (necessário para exibir no site público)
+CREATE POLICY "Permitir leitura pública" ON public.novidades_linkedin
+    FOR SELECT USING (true);
+
+-- Ativa a segurança em nível de linha (RLS)
+ALTER TABLE public.novidades_linkedin ENABLE ROW LEVEL SECURITY;

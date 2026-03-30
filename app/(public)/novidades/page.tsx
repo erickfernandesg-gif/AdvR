@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/db';
 import { ExternalLink, Calendar, AlertCircle, Newspaper } from 'lucide-react';
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Define the type for our LinkedIn news
 interface Novidade {
@@ -20,10 +15,20 @@ export const revalidate = 60; // Optional: revalidate every 60 seconds
 
 export default async function NovidadesPage() {
   // Fetch data from Supabase
-  const { data: novidades, error } = await supabase
-    .from('novidades_linkedin')
-    .select('id, titulo, conteudo, url_imagem, url_postagem, data_publicacao')
-    .order('data_publicacao', { ascending: false });
+  let novidades: Novidade[] | null = null;
+  let error: any = null;
+
+  if (supabase) {
+    const { data, error: fetchError } = await supabase
+      .from('novidades_linkedin')
+      .select('id, titulo, conteudo, url_imagem, url_postagem, data_publicacao')
+      .order('data_publicacao', { ascending: false });
+    
+    novidades = data;
+    error = fetchError;
+  } else {
+    error = { message: 'Supabase client not initialized. Check environment variables.' };
+  }
 
   // Format date function
   const formatDate = (dateString: string | null) => {

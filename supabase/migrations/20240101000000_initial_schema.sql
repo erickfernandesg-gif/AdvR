@@ -134,3 +134,9 @@ CREATE POLICY "Permitir leitura pública" ON public.novidades_linkedin
 
 -- Ativa a segurança em nível de linha (RLS)
 ALTER TABLE public.novidades_linkedin ENABLE ROW LEVEL SECURITY;
+
+-- Script para adicionar campos de enriquecimento de dados (Apollo) na tabela de leads
+ALTER TABLE public.leads 
+ADD COLUMN IF NOT EXISTS setor TEXT,
+ADD COLUMN IF NOT EXISTS tamanho_empresa TEXT,
+ADD COLUMN IF NOT EXISTS cidade TEXT;

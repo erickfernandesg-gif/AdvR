@@ -23,8 +23,8 @@ export default function LeadStatusSelect({ leadId, initialStatus }: { leadId: st
       }
     } catch (error) {
       console.error('Error updating lead status:', error);
-      alert('Erro ao atualizar status do lead.');
-      setStatus(initialStatus); // Revert on error
+      // Revert on error without alert
+      setStatus(initialStatus);
     } finally {
       setUpdating(false);
     }

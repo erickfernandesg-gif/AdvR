@@ -365,3 +365,17 @@ export async function getBlocksCount() {
   }
   return 0;
 }
+
+export async function deleteLead(id: string) {
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('leads').delete().eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+      return false;
+    }
+  }
+  return false;
+}

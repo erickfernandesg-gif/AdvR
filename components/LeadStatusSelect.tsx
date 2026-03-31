@@ -33,13 +33,13 @@ export default function LeadStatusSelect({ leadId, initialStatus }: { leadId: st
   const getStatusClasses = (currentStatus: string) => {
     switch (currentStatus) {
       case 'novo':
-        return 'bg-green-500/20 text-green-400 border border-green-500/30';
+        return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
       case 'em_atendimento':
-        return 'bg-accent/20 text-accent border border-accent/30';
+        return 'bg-blue-100 text-blue-700 border border-blue-200';
       case 'convertido':
-        return 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+        return 'bg-purple-100 text-purple-700 border border-purple-200';
       default:
-        return 'bg-white/10 text-muted-foreground border border-white/20';
+        return 'bg-slate-100 text-slate-600 border border-slate-200';
     }
   };
 

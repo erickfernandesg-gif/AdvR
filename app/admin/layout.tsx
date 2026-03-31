@@ -55,15 +55,15 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex h-screen bg-secondary/30 text-foreground">
+    <div className="flex h-screen bg-slate-50 text-slate-900">
       {/* Sidebar */}
-      <aside className="w-72 bg-background border-r border-border flex flex-col shadow-sm">
-        <div className="p-8 border-b border-border">
+      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col shadow-sm">
+        <div className="p-8 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
               <span className="material-symbols-outlined text-white text-2xl">insights</span>
             </div>
-            <span className="font-display font-bold text-xl text-foreground tracking-tight">AdvR Admin</span>
+            <span className="font-display font-bold text-xl text-slate-900 tracking-tight">AdvR Admin</span>
           </div>
         </div>
         
@@ -77,7 +77,7 @@ export default function AdminLayout({
                 className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all text-sm uppercase tracking-widest ${
                   isActive 
                     ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
@@ -87,10 +87,10 @@ export default function AdminLayout({
           })}
         </nav>
         
-        <div className="p-6 border-t border-border">
+        <div className="p-6 border-t border-slate-200">
           <button 
             onClick={handleLogout} 
-            className="w-full flex items-center gap-4 px-5 py-4 text-muted-foreground hover:bg-red-50 hover:text-red-600 rounded-2xl font-bold transition-all text-sm uppercase tracking-widest"
+            className="w-full flex items-center gap-4 px-5 py-4 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-2xl font-bold transition-all text-sm uppercase tracking-widest"
           >
             <span className="material-symbols-outlined">logout</span>
             Sair do Sistema

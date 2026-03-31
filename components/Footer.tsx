@@ -48,9 +48,12 @@ export default function Footer({ settings }: { settings: any }) {
             <h3 className="font-display font-extrabold text-foreground mb-8 uppercase tracking-[0.2em] text-xs">Navegação Estratégica</h3>
             <ul className="space-y-5">
               <li><Link href="/empresa" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Sobre a AdvR</Link></li>
-              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Insights de Elite</Link></li>
               <li><Link href="/solucoes" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Nossas Soluções</Link></li>
+              <li><Link href="/portal" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Portal do Cliente</Link></li>
+              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Insights de Elite</Link></li>
+              <li><Link href="/novidades" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Novidades</Link></li>
               <li><Link href="/contato" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Fale Conosco</Link></li>
+              <li className="pt-4"><Link href="/login" className="text-muted-foreground/50 hover:text-primary transition-colors font-semibold text-xs uppercase tracking-widest">Acesso Restrito (Login)</Link></li>
             </ul>
           </div>
 

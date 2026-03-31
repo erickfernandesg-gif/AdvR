@@ -19,7 +19,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
       if (value.length > 100 || key.includes('description') || key.includes('subtitle') || key.includes('text')) {
         return (
           <textarea
-            className="w-full bg-secondary border border-border rounded-xl p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+            className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             rows={4}
@@ -29,7 +29,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
       return (
         <input
           type="text"
-          className="w-full bg-secondary border border-border rounded-xl p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+          className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -38,9 +38,9 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
     
     if (Array.isArray(value)) {
       return (
-        <div className="space-y-6 border-l-2 border-border pl-6 ml-2">
+        <div className="space-y-6 border-l-2 border-slate-200 pl-6 ml-2">
           {value.map((item, index) => (
-            <div key={index} className="bg-secondary/50 p-6 rounded-2xl relative border border-border/50">
+            <div key={index} className="bg-slate-50 p-6 rounded-2xl relative border border-slate-200">
               <button 
                 onClick={() => {
                   const newArr = [...value];
@@ -54,7 +54,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
               {typeof item === 'string' ? (
                 <input
                   type="text"
-                  className="w-full bg-secondary border border-border rounded-xl p-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all pr-12"
+                  className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all pr-12"
                   value={item}
                   onChange={(e) => {
                     const newArr = [...value];
@@ -66,7 +66,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
                 <div className="space-y-6">
                   {Object.entries(item || {}).map(([subKey, subVal]) => (
                     <div key={subKey}>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 capitalize">{subKey.replace(/_/g, ' ')}</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 capitalize">{subKey.replace(/_/g, ' ')}</label>
                       {renderField(subKey, subVal, (newSubVal) => {
                         const newArr = [...value];
                         newArr[index] = { ...item, [subKey]: newSubVal };
@@ -90,7 +90,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
               }
               onChange([...value, newItem]);
             }}
-            className="text-xs font-bold uppercase tracking-widest text-primary hover:text-accent flex items-center gap-2 transition-colors"
+            className="text-xs font-bold uppercase tracking-widest text-primary hover:text-blue-700 flex items-center gap-2 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">add_circle</span> Adicionar Item
           </button>
@@ -100,10 +100,10 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
     
     if (typeof value === 'object' && value !== null) {
       return (
-        <div className="space-y-6 border-l-2 border-border pl-6 ml-2">
+        <div className="space-y-6 border-l-2 border-slate-200 pl-6 ml-2">
           {Object.entries(value).map(([subKey, subVal]) => (
             <div key={subKey}>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 capitalize">{subKey.replace(/_/g, ' ')}</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 capitalize">{subKey.replace(/_/g, ' ')}</label>
               {renderField(subKey, subVal, (newSubVal) => {
                 onChange({ ...value, [subKey]: newSubVal });
               })}
@@ -117,13 +117,13 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
   };
 
   return (
-    <div className={`glass-panel rounded-2xl border transition-all duration-200 overflow-hidden ${isExpanded ? 'border-primary shadow-md ring-1 ring-primary/20' : 'border-border hover:border-white/20'}`}>
+    <div className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${isExpanded ? 'border-primary shadow-md ring-1 ring-primary/20' : 'border-slate-200 hover:border-slate-300'}`}>
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex justify-between items-center p-6 focus:outline-none text-left"
       >
         <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${isExpanded ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${isExpanded ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>
             <span className="material-symbols-outlined text-2xl">
               {block.block_name.includes('hero') ? 'web_asset' : 
                block.block_name.includes('contact') ? 'contact_mail' : 
@@ -131,24 +131,24 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
             </span>
           </div>
           <div>
-            <h4 className="font-display font-extrabold text-foreground text-lg capitalize tracking-tight">{block.block_name.replace(/_/g, ' ')}</h4>
+            <h4 className="font-display font-extrabold text-slate-900 text-lg capitalize tracking-tight">{block.block_name.replace(/_/g, ' ')}</h4>
             <div className="flex items-center gap-3 mt-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full">Ordem: {block.order_index}</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">Ativo</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">Ordem: {block.order_index}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-blue-50 px-2.5 py-0.5 rounded-full">Ativo</span>
             </div>
           </div>
         </div>
-        <span className={`material-symbols-outlined text-muted-foreground transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}>
+        <span className={`material-symbols-outlined text-slate-400 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}>
           expand_more
         </span>
       </button>
       
       {isExpanded && (
-        <div className="p-6 pt-0 border-t border-border/50 bg-black/20">
+        <div className="p-6 pt-0 border-t border-slate-100 bg-slate-50/50">
           <div className="space-y-6 mt-6">
             {Object.entries(editContent).map(([key, value]) => (
               <div key={key}>
-                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 capitalize">{key.replace(/_/g, ' ')}</label>
+                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 capitalize">{key.replace(/_/g, ' ')}</label>
                 {renderField(key, value, (newVal) => {
                   setEditContent({ ...editContent, [key]: newVal });
                 })}
@@ -156,11 +156,11 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
             ))}
           </div>
           
-          <div className="flex justify-end mt-8 pt-6 border-t border-border/50">
+          <div className="flex justify-end mt-8 pt-6 border-t border-slate-200">
             <button 
               onClick={handleSave}
               disabled={saving}
-              className="bg-primary text-primary-foreground px-6 py-2.5 rounded-full font-bold hover:bg-primary/90 transition-colors shadow-md flex items-center gap-2 disabled:opacity-70"
+              className="bg-primary text-white px-6 py-2.5 rounded-full font-bold hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70"
             >
               {saving ? (
                 <><span className="material-symbols-outlined animate-spin text-sm">progress_activity</span> Sincronizando...</>

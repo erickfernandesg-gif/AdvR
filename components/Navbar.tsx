@@ -51,16 +51,13 @@ export default function Navbar() {
           </div>
 
           <nav className="hidden md:flex items-center space-x-10">
-            <Link href="/" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Home</Link>
             <Link href="/empresa" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/empresa' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Empresa</Link>
             <Link href="/solucoes" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/solucoes' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Soluções</Link>
+            <Link href="/portal" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/portal' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Portal</Link>
             <Link href="/blog" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/blog' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Insights</Link>
-            <Link href="/novidades" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/novidades' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Novidades</Link>
-            <Link href="/contato" className={`font-semibold transition-colors text-sm uppercase tracking-widest ${pathname === '/contato' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>Contato</Link>
           </nav>
 
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/admin" className="text-muted-foreground hover:text-foreground font-semibold transition-colors text-sm uppercase tracking-widest">Portal</Link>
             <Link href="/contato" className="btn-electric !py-2.5 !px-6 text-sm uppercase tracking-widest">
               Fale Conosco
             </Link>
@@ -102,16 +99,13 @@ export default function Navbar() {
             </div>
             
             <nav className="flex flex-col space-y-8">
-              <Link href="/" className={`text-2xl font-display font-bold ${pathname === '/' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
               <Link href="/empresa" className={`text-2xl font-display font-bold ${pathname === '/empresa' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Empresa</Link>
               <Link href="/solucoes" className={`text-2xl font-display font-bold ${pathname === '/solucoes' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Soluções</Link>
+              <Link href="/portal" className={`text-2xl font-display font-bold ${pathname === '/portal' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Portal</Link>
               <Link href="/blog" className={`text-2xl font-display font-bold ${pathname === '/blog' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Insights</Link>
-              <Link href="/novidades" className={`text-2xl font-display font-bold ${pathname === '/novidades' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Novidades</Link>
-              <Link href="/contato" className={`text-2xl font-display font-bold ${pathname === '/contato' ? 'text-primary' : 'text-foreground'}`} onClick={() => setIsMobileMenuOpen(false)}>Contato</Link>
             </nav>
 
             <div className="mt-auto pt-12 flex flex-col gap-4">
-              <Link href="/admin" className="text-center text-foreground font-bold py-4 border border-border rounded-full uppercase tracking-widest text-sm" onClick={() => setIsMobileMenuOpen(false)}>Portal do Cliente</Link>
               <Link href="/contato" className="btn-electric" onClick={() => setIsMobileMenuOpen(false)}>Fale Conosco</Link>
             </div>
           </div>

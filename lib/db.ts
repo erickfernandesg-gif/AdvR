@@ -279,6 +279,72 @@ export async function getPageBlocks(slug: string) {
     ];
   }
 
+  if (slug === '/portal') {
+    return [
+      {
+        block_name: 'hero_section',
+        content: {
+          title: 'Portal de Incentivos: Plataforma Inteligente',
+          subtitle: 'Utilize de qualquer lugar, em qualquer dispositivo. Visualize as principais informações e avisos sobre a premiação.',
+          image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80',
+          primary_button: 'Acessar Portal',
+          secondary_button: 'Fale Conosco'
+        }
+      },
+      {
+        block_name: 'solucoes_bento',
+        content: {
+          title: 'Recursos do Portal',
+          subtitle: 'Tudo o que sua força de vendas precisa em um só lugar.',
+          cards: [
+            {
+              id: 'extrato',
+              tag: 'Transparência',
+              icon: 'receipt_long',
+              title: 'Extratos',
+              description: 'Download do resultado do mês corrente ou anteriores em PDF, com histórico de visualização.'
+            },
+            {
+              id: 'relatorios',
+              tag: 'Performance',
+              icon: 'bar_chart',
+              title: 'Relatórios & Infográficos',
+              description: 'Relatórios analíticos e simplificados em planilha. Infográficos com filtros por produto e KPI.'
+            },
+            {
+              id: 'conteudos',
+              tag: 'Comunicação',
+              icon: 'folder_open',
+              title: 'Conteúdos',
+              description: 'Upload de vídeos, arquivos de texto, planilhas e apresentações. Registro de acessos e downloads.'
+            },
+            {
+              id: 'politicas',
+              tag: 'Compliance',
+              icon: 'policy',
+              title: 'Políticas',
+              description: 'Regras de remuneração variável com notificação por e-mail e aceite/de acordo digital.'
+            },
+            {
+              id: 'calculadora',
+              tag: 'Simulação',
+              icon: 'calculate',
+              title: 'Calculadora Virtual',
+              description: 'Simule os valores de premiação, comissionamento ou campanhas de forma rápida e fácil.'
+            },
+            {
+              id: 'bi',
+              tag: 'Inteligência',
+              icon: 'query_stats',
+              title: 'Análise BI',
+              description: 'Relatórios customizados e disponibilizados diretamente no portal através de ferramentas de BI.'
+            }
+          ]
+        }
+      }
+    ];
+  }
+
   return [];
 }
 

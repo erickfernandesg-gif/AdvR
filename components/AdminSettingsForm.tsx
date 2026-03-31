@@ -123,26 +123,26 @@ export default function AdminSettingsForm({ initialSettings }: { initialSettings
 
   return (
     <form className="space-y-6">
-      <div className="border-b border-white/10 pb-8 mb-8">
-        <h2 className="text-xl font-display font-bold text-foreground mb-6">Identidade Visual</h2>
+      <div className="border-b border-slate-200 pb-8 mb-8">
+        <h2 className="text-xl font-display font-bold text-slate-900 mb-6">Identidade Visual</h2>
         <div className="flex flex-col md:flex-row items-center gap-8">
-          <div className="w-32 h-32 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center overflow-hidden relative group">
+          <div className="w-32 h-32 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden relative group">
             {settings.logo_url ? (
               <img src={settings.logo_url} alt="Logo" className="w-full h-full object-contain p-4" />
             ) : (
-              <span className="material-symbols-outlined text-4xl text-muted-foreground">image</span>
+              <span className="material-symbols-outlined text-4xl text-slate-400">image</span>
             )}
             {uploading && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <span className="material-symbols-outlined animate-spin text-white">progress_activity</span>
+              <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
               </div>
             )}
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-bold text-foreground mb-2">Logo da Empresa</label>
-            <p className="text-xs text-muted-foreground mb-4">Recomendado: PNG ou SVG com fundo transparente. Máx 2MB.</p>
+            <label className="block text-sm font-bold text-slate-900 mb-2">Logo da Empresa</label>
+            <p className="text-xs text-slate-500 mb-4">Recomendado: PNG ou SVG com fundo transparente. Máx 2MB.</p>
             <div className="flex items-center gap-4">
-              <label className="cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-2.5 rounded-full text-sm font-bold transition-colors flex items-center gap-2">
+              <label className="cursor-pointer bg-white hover:bg-slate-50 border border-slate-200 px-6 py-2.5 rounded-full text-sm font-bold transition-colors flex items-center gap-2 text-slate-700 shadow-sm">
                 <span className="material-symbols-outlined text-lg">upload</span>
                 {settings.logo_url ? 'Trocar Logo' : 'Subir Logo'}
                 <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={uploading} />
@@ -151,7 +151,7 @@ export default function AdminSettingsForm({ initialSettings }: { initialSettings
                 <button 
                   type="button" 
                   onClick={() => setSettings((prev: any) => ({ ...prev, logo_url: '' }))}
-                  className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                  className="text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
                 >
                   Remover
                 </button>
@@ -163,87 +163,87 @@ export default function AdminSettingsForm({ initialSettings }: { initialSettings
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-bold text-foreground mb-2">Endereço</label>
+          <label className="block text-sm font-bold text-slate-900 mb-2">Endereço</label>
           <input 
             type="text" 
             name="address"
             value={settings.address || ''} 
             onChange={handleChange}
-            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow" 
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow" 
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-foreground mb-2">Telefone</label>
+          <label className="block text-sm font-bold text-slate-900 mb-2">Telefone</label>
           <input 
             type="text" 
             name="phone_number"
             value={settings.phone_number || ''} 
             onChange={handleChange}
-            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow" 
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow" 
           />
         </div>
       </div>
       
       <div>
-        <label className="block text-sm font-bold text-foreground mb-2">E-mail de Contato</label>
+        <label className="block text-sm font-bold text-slate-900 mb-2">E-mail de Contato</label>
         <input 
           type="email" 
           name="email_contact"
           value={settings.email_contact || ''} 
           onChange={handleChange}
-          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow" 
+          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow" 
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-bold text-foreground mb-2">LinkedIn URL</label>
+          <label className="block text-sm font-bold text-slate-900 mb-2">LinkedIn URL</label>
           <input 
             type="url" 
             name="linkedin_url"
             value={settings.linkedin_url || ''} 
             onChange={handleChange}
             placeholder="https://linkedin.com/company/..."
-            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow" 
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow" 
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-foreground mb-2">Instagram URL</label>
+          <label className="block text-sm font-bold text-slate-900 mb-2">Instagram URL</label>
           <input 
             type="url" 
             name="instagram_url"
             value={settings.instagram_url || ''} 
             onChange={handleChange}
             placeholder="https://instagram.com/..."
-            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow" 
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow" 
           />
         </div>
       </div>
 
-      <div className="border-t border-white/10 pt-6 mt-6">
-        <h2 className="text-xl font-display font-bold text-foreground mb-6">Integrações</h2>
+      <div className="border-t border-slate-200 pt-6 mt-6">
+        <h2 className="text-xl font-display font-bold text-slate-900 mb-6">Integrações</h2>
         
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-bold text-foreground mb-2">Google Analytics ID</label>
+            <label className="block text-sm font-bold text-slate-900 mb-2">Google Analytics ID</label>
             <input 
               type="text" 
               name="google_analytics_id"
               value={settings.google_analytics_id || ''} 
               onChange={handleChange}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow placeholder:text-muted-foreground" 
+              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow placeholder:text-slate-400" 
               placeholder="G-XXXXXXXXXX" 
             />
           </div>
           
           <div>
-            <label className="block text-sm font-bold text-foreground mb-2">Scripts Customizados (Head)</label>
+            <label className="block text-sm font-bold text-slate-900 mb-2">Scripts Customizados (Head)</label>
             <textarea 
               rows={4} 
               name="custom_script_head"
               value={settings.custom_script_head || ''} 
               onChange={handleChange}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow font-mono text-sm placeholder:text-muted-foreground" 
+              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow font-mono text-sm placeholder:text-slate-400" 
               placeholder="<script>...</script>"
             ></textarea>
           </div>
@@ -255,7 +255,7 @@ export default function AdminSettingsForm({ initialSettings }: { initialSettings
           type="button" 
           onClick={handleSave}
           disabled={saving}
-          className="bg-primary text-primary-foreground px-8 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors shadow-md flex items-center gap-2 disabled:opacity-70"
+          className="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70"
         >
           {saving ? (
             <><span className="material-symbols-outlined animate-spin">progress_activity</span> Salvando...</>

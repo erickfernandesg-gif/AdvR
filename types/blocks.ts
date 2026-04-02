@@ -3,6 +3,8 @@ export interface HeroContent {
   subtitle: string;
   primary_button: string;
   secondary_button: string;
+  primary_button_link?: string;
+  secondary_button_link?: string;
   image_url: string;
   image_link?: string;
 }
@@ -105,6 +107,7 @@ export interface BlogPostHighlight {
   category: string;
   title: string;
   excerpt: string;
+  image_url?: string;
 }
 
 export interface BlogHighlightContent {

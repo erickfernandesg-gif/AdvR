@@ -73,11 +73,11 @@ export default function HeroSection({ content }: { content: HeroContent }) {
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
             className="flex flex-col sm:flex-row gap-6 items-center justify-center w-full sm:w-auto"
           >
-            <Link href="/#contato" className="btn-premium w-full sm:w-auto">
+            <Link href={content.primary_button_link || "/#contato"} className="btn-premium w-full sm:w-auto">
               {content.primary_button}
               <span className="material-symbols-outlined text-lg">arrow_forward</span>
             </Link>
-            <Link href="/solucoes" className="btn-premium-dark w-full sm:w-auto">
+            <Link href={content.secondary_button_link || (content.secondary_button === 'Ver Artigos' ? '#artigos' : "/solucoes")} className="btn-premium-dark w-full sm:w-auto">
               {content.secondary_button}
             </Link>
           </motion.div>

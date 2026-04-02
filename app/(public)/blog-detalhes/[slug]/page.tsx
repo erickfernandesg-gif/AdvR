@@ -10,41 +10,58 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   const dbPost = await getPostBySlug(slug);
   
   // Mock data as fallback for demo purposes
-  const mockPost = {
-    title: 'A Gestão Proativa na Remuneração Variável: Antecipando Desafios para Otimizar Resultados',
-    category: 'Suporte Proativo',
-    date: '17 Mar 2026',
-    content: `
-      <h2>Introdução</h2>
-      <p>No dinâmico cenário empresarial atual, a capacidade de antecipar é um diferencial competitivo crucial. Isso se aplica intensamente à gestão da remuneração variável e dos programas de incentivo, onde uma abordagem proativa pode transformar desafios em oportunidades, impulsionando a performance e o engajamento das equipes. Longe de ser apenas uma resposta a problemas, a gestão proativa busca identificar e otimizar cenários antes que eles se manifestem, garantindo que os programas de incentivo estejam sempre alinhados aos objetivos estratégicos da organização.</p>
-      
-      <h2>O Que é Gestão Proativa em Remuneração Variável?</h2>
-      <p>A gestão proativa em remuneração variável é uma metodologia que prioriza a identificação e a resolução de potenciais lacunas ou desalinhamentos nos programas de incentivo antes que eles impactem negativamente a performance ou a motivação dos colaboradores. Diferente de uma postura reativa – que age apenas após o problema surgir (ex: baixa performance, descontentamento com cálculos) – a abordagem proativa toma a iniciativa. Ela envolve a criação de mecanismos de monitoramento, análise e comunicação que previnem falhas, otimizam a estrutura das premiações e promovem uma cultura de transparência e eficiência.</p>
-      
-      <h2>Pilares da Gestão Proativa para Programas de Incentivo Eficazes</h2>
-      <p>Para implementar uma gestão verdadeiramente proativa, as empresas podem focar em alguns pilares essenciais:</p>
-      <ul>
-        <li><strong>Monitoramento Contínuo:</strong> Acompanhamento constante dos indicadores de performance e das métricas de remuneração variável.</li>
-        <li><strong>Análise Preditiva:</strong> Utilização de dados históricos e tendências para prever cenários futuros e ajustar as metas e premiações.</li>
-        <li><strong>Comunicação Transparente:</strong> Diálogo constante e claro com as equipes sobre as regras, metas e resultados dos programas de incentivo.</li>
-        <li><strong>Flexibilidade e Adaptabilidade:</strong> Capacidade de ajustar rapidamente os programas de incentivo em resposta a mudanças no mercado ou na estratégia da empresa.</li>
-      </ul>
+  const mockPosts: Record<string, any> = {
+    'suporte-proativo': {
+      title: 'A Gestão Proativa na Remuneração Variável: Antecipando Desafios para Otimizar Resultados',
+      category: 'Suporte Proativo',
+      date: '17 Mar 2026',
+      image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80',
+      content: `
+        <h2>Introdução</h2>
+        <p>No dinâmico cenário empresarial atual, a capacidade de antecipar é um diferencial competitivo crucial. Isso se aplica intensamente à gestão da remuneração variável e dos programas de incentivo, onde uma abordagem proativa pode transformar desafios em oportunidades, impulsionando a performance e o engajamento das equipes. Longe de ser apenas uma resposta a problemas, a gestão proativa busca identificar e otimizar cenários antes que eles se manifestem, garantindo que os programas de incentivo estejam sempre alinhados aos objetivos estratégicos da organização.</p>
+        
+        <h2>O Que é Gestão Proativa em Remuneração Variável?</h2>
+        <p>A gestão proativa em remuneração variável é uma metodologia que prioriza a identificação e a resolução de potenciais lacunas ou desalinhamentos nos programas de incentivo antes que eles impactem negativamente a performance ou a motivação dos colaboradores. Diferente de uma postura reativa – que age apenas após o problema surgir (ex: baixa performance, descontentamento com cálculos) – a abordagem proativa toma a iniciativa. Ela envolve a criação de mecanismos de monitoramento, análise e comunicação que previnem falhas, otimizam a estrutura das premiações e promovem uma cultura de transparência e eficiência.</p>
+        
+        <h2>Pilares da Gestão Proativa para Programas de Incentivo Eficazes</h2>
+        <p>Para implementar uma gestão verdadeiramente proativa, as empresas podem focar em alguns pilares essenciais:</p>
+        <ul>
+          <li><strong>Monitoramento Contínuo:</strong> Acompanhamento constante dos indicadores de performance e das métricas de remuneração variável.</li>
+          <li><strong>Análise Preditiva:</strong> Utilização de dados históricos e tendências para prever cenários futuros e ajustar as metas e premiações.</li>
+          <li><strong>Comunicação Transparente:</strong> Diálogo constante e claro com as equipes sobre as regras, metas e resultados dos programas de incentivo.</li>
+          <li><strong>Flexibilidade e Adaptabilidade:</strong> Capacidade de ajustar rapidamente os programas de incentivo em resposta a mudanças no mercado ou na estratégia da empresa.</li>
+        </ul>
 
-      <h2>Benefícios de uma Abordagem Proativa</h2>
-      <p>A adoção de uma gestão proativa em programas de remuneração variável e incentivos gera impactos significativos:</p>
-      <ul>
-        <li><strong>Aumento do Engajamento:</strong> Colaboradores mais motivados e alinhados aos objetivos da empresa.</li>
-        <li><strong>Melhoria da Performance:</strong> Resultados mais consistentes e alinhados às metas estratégicas.</li>
-        <li><strong>Redução de Erros e Retrabalho:</strong> Processos mais eficientes e menos sujeitos a falhas.</li>
-        <li><strong>Maior Transparência e Confiança:</strong> Relação mais transparente e confiável entre a empresa e seus colaboradores.</li>
-      </ul>
+        <h2>Benefícios de uma Abordagem Proativa</h2>
+        <p>A adoção de uma gestão proativa em programas de remuneração variável e incentivos gera impactos significativos:</p>
+        <ul>
+          <li><strong>Aumento do Engajamento:</strong> Colaboradores mais motivados e alinhados aos objetivos da empresa.</li>
+          <li><strong>Melhoria da Performance:</strong> Resultados mais consistentes e alinhados às metas estratégicas.</li>
+          <li><strong>Redução de Erros e Retrabalho:</strong> Processos mais eficientes e menos sujeitos a falhas.</li>
+          <li><strong>Maior Transparência e Confiança:</strong> Relação mais transparente e confiável entre a empresa e seus colaboradores.</li>
+        </ul>
 
-      <h2>Conclusão</h2>
-      <p>A gestão proativa não é apenas uma "boa prática"; é uma necessidade para organizações que buscam excelência em seus programas de remuneração variável. Ao antecipar necessidades, otimizar processos e fomentar uma cultura de transparência, as empresas garantem não apenas a precisão nos cálculos, mas principalmente o alinhamento estratégico e o máximo potencial de sua força de vendas e demais colaboradores. É um investimento contínuo que se traduz em resultados tangíveis e sustentáveis.</p>
-    `
+        <h2>Conclusão</h2>
+        <p>A gestão proativa não é apenas uma "boa prática"; é uma necessidade para organizações que buscam excelência em seus programas de remuneração variável. Ao antecipar necessidades, otimizar processos e fomentar uma cultura de transparência, as empresas garantem não apenas a precisão nos cálculos, mas principalmente o alinhamento estratégico e o máximo potencial de sua força de vendas e demais colaboradores. É um investimento contínuo que se traduz em resultados tangíveis e sustentáveis.</p>
+      `
+    },
+    'ia-remuneracao': {
+      title: 'O Impacto da Inteligência Artificial na Engenharia de Remuneração',
+      category: 'Tecnologia',
+      date: '15 Mar 2026',
+      image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80',
+      content: '<h2>A Revolução da IA</h2><p>A inteligência artificial está transformando a forma como calculamos e distribuímos incentivos...</p>'
+    },
+    'transparencia-radical': {
+      title: 'Transparência Radical: O Novo Padrão para Engajamento de Vendas',
+      category: 'Engajamento',
+      date: '12 Mar 2026',
+      image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80',
+      content: '<h2>Transparência como Estratégia</h2><p>Esconder as regras do jogo custa caro. Veja como a transparência aumenta as vendas...</p>'
+    }
   };
 
-  const post = dbPost || (slug === 'suporte-proativo' ? mockPost : null);
+  const post = dbPost || mockPosts[slug] || null;
 
   if (!post) {
     notFound();

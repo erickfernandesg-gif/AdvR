@@ -124,7 +124,42 @@ export async function getPageBlocks(slug: string) {
     const { data: page } = await supabase.from('pages').select('id').eq('slug', slug).single();
     if (page) {
       const { data: blocks } = await supabase.from('page_blocks').select('*').eq('page_id', page.id).order('order_index');
-      if (blocks && blocks.length > 0) return blocks;
+      if (blocks && blocks.length > 0) {
+        // Inject latest post into blog_highlight if it exists
+        const highlightBlock = blocks.find(b => b.block_name === 'blog_highlight');
+        if (highlightBlock) {
+          try {
+            const { data: latestPost } = await supabase
+              .from('posts')
+              .select('title, excerpt, category, slug, image_url')
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+            
+            if (latestPost) {
+              highlightBlock.content.post = latestPost;
+            }
+          } catch (e) {
+            console.warn('Could not fetch latest post for highlight');
+          }
+        }
+
+        // Inject blog_list if missing for /blog
+        if (slug === '/blog' && !blocks.find(b => b.block_name === 'blog_list')) {
+          blocks.push({
+            id: 'injected-blog-list',
+            page_id: page.id,
+            block_name: 'blog_list',
+            order_index: 99,
+            content: {
+              title: 'Todos os Insights',
+              subtitle: 'Acesse nossa biblioteca completa de conhecimento.'
+            }
+          });
+        }
+
+        return blocks;
+      }
     }
   }
   
@@ -141,7 +176,7 @@ export async function getPageBlocks(slug: string) {
       try {
         const { data } = await supabase
           .from('posts')
-          .select('title, excerpt, category, slug')
+          .select('title, excerpt, category, slug, image_url')
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
@@ -330,7 +365,7 @@ export async function getPageBlocks(slug: string) {
       try {
         const { data } = await supabase
           .from('posts')
-          .select('title, excerpt, category, slug')
+          .select('title, excerpt, category, slug, image_url')
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
@@ -350,7 +385,9 @@ export async function getPageBlocks(slug: string) {
           title: 'Insights de Elite',
           subtitle: 'Explorando a intersecção entre tecnologia, precisão matemática e performance humana na remuneração variável.',
           primary_button: 'Assinar Newsletter',
-          secondary_button: 'Ver Categorias',
+          secondary_button: 'Ver Artigos',
+          primary_button_link: '#newsletter',
+          secondary_button_link: '#artigos',
           image_url: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80',
           image_link: ''
         }

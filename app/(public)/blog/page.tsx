@@ -2,6 +2,9 @@ import { getPageBlocks } from '@/lib/db';
 import PageBlocksRenderer from '@/components/PageBlocksRenderer';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Insights e Blog',
   description: 'Artigos, tendências e análises profundas sobre como otimizar a performance da sua equipe de vendas e engenharia de remuneração.',

@@ -3,9 +3,12 @@
 import Link from 'next/link';
 import { BlogHighlightContent } from '@/types/blocks';
 
-export default function BlogHighlight({ content }: { content: BlogHighlightContent }) {
-  const post = content.post;
+export default function BlogHighlight({ content }: { content: any }) {
+  // Handle both new format (content.post) and old format (content.posts[0])
+  const post = content.post || (content.posts && content.posts.length > 0 ? content.posts[0] : null);
   if (!post) return null;
+
+  const postLink = post.slug ? `/blog-detalhes/${post.slug}` : (post.link || '#');
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
@@ -18,7 +21,7 @@ export default function BlogHighlight({ content }: { content: BlogHighlightConte
           Ver Todos os Insights <span className="material-symbols-outlined text-sm">arrow_forward</span>
         </Link>
       </div>
-      <Link href={`/blog-detalhes/${post.slug}`} className="group block">
+      <Link href={postLink} className="group block">
         <div className="bg-background border-2 border-border p-12 rounded-[3rem] text-foreground relative overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col lg:flex-row gap-12">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
           

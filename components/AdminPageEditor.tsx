@@ -65,21 +65,26 @@ function IconPreview({ iconName }: { iconName: string }) {
   );
 }
 
-function BlockEditor({ block, onSave, onMove, isFirst, isLast }: { 
+function BlockEditor({ block, onChange, onMove, isFirst, isLast }: { 
   block: any, 
-  onSave: (id: string, content: any) => Promise<void>,
+  onChange: (id: string, content: any) => void,
   onMove: (direction: 'up' | 'down') => void,
   isFirst: boolean,
   isLast: boolean
 }) {
   const [editContent, setEditContent] = useState(block.content || {});
-  const [saving, setSaving] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   const getLabel = (key: string) => FIELD_LABELS[key] || key.replace(/_/g, ' ');
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: any) => void) => {
+  const handleFieldChange = (key: string, value: any) => {
+    const newContent = { ...editContent, [key]: value };
+    setEditContent(newContent);
+    onChange(block.id, newContent);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, onFieldChange: (val: any) => void) => {
     try {
       if (!e.target.files || e.target.files.length === 0) return;
       const file = e.target.files[0];
@@ -99,7 +104,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
 
       const { data } = supabase.storage.from('uploads').getPublicUrl(filePath);
       
-      onChange(data.publicUrl);
+      onFieldChange(data.publicUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
       alert('Erro ao fazer upload da imagem. Verifique se o bucket "uploads" existe no Supabase.');
@@ -108,13 +113,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
     }
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    await onSave(block.id, editContent);
-    setSaving(false);
-  };
-
-  const renderField = (key: string, value: any, onChange: (val: any) => void) => {
+  const renderField = (key: string, value: any, onFieldChange: (val: any) => void) => {
     if (typeof value === 'string') {
       // Campo de Ícone com Preview
       if (key.includes('icon') || key.includes('icone')) {
@@ -128,7 +127,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
                 placeholder="Ex: rocket_launch, visibility, verified..."
                 className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 font-medium focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                 value={value}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => onFieldChange(e.target.value)}
               />
             </div>
           </div>
@@ -147,14 +146,14 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
                   placeholder="URL da imagem ou faça upload..."
                   className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 font-medium focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                   value={value}
-                  onChange={(e) => onChange(e.target.value)}
+                  onChange={(e) => onFieldChange(e.target.value)}
                 />
               </div>
               <div className="relative">
                 <input 
                   type="file" 
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, onChange)}
+                  onChange={(e) => handleImageUpload(e, onFieldChange)}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   disabled={uploading}
                 />
@@ -195,7 +194,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
               placeholder="Ex: /contato ou https://..."
               className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 font-medium focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
               value={value}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => onFieldChange(e.target.value)}
             />
           </div>
         );
@@ -207,7 +206,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
           <textarea
             className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 font-medium focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all min-h-[120px] leading-relaxed"
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => onFieldChange(e.target.value)}
             rows={4}
           />
         );
@@ -219,7 +218,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
           type="text"
           className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 font-medium focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onFieldChange(e.target.value)}
         />
       );
     }
@@ -237,7 +236,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
                 onClick={() => {
                   const newArr = [...value];
                   newArr.splice(index, 1);
-                  onChange(newArr);
+                  onFieldChange(newArr);
                 }}
                 className="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center opacity-0 group-hover/item:opacity-100"
                 title="Remover Item"
@@ -252,7 +251,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
                   onChange={(e) => {
                     const newArr = [...value];
                     newArr[index] = e.target.value;
-                    onChange(newArr);
+                    onFieldChange(newArr);
                   }}
                 />
               ) : (
@@ -263,7 +262,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
                       {renderField(subKey, subVal, (newSubVal) => {
                         const newArr = [...value];
                         newArr[index] = { ...item, [subKey]: newSubVal };
-                        onChange(newArr);
+                        onFieldChange(newArr);
                       })}
                     </div>
                   ))}
@@ -281,7 +280,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
               } else {
                 newItem = {};
               }
-              onChange([...value, newItem]);
+              onFieldChange([...value, newItem]);
             }}
             className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-xs font-bold uppercase tracking-widest text-slate-400 hover:border-primary hover:text-primary hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
           >
@@ -299,7 +298,7 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
             <div key={subKey}>
               <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{getLabel(subKey)}</label>
               {renderField(subKey, subVal, (newSubVal) => {
-                onChange({ ...value, [subKey]: newSubVal });
+                onFieldChange({ ...value, [subKey]: newSubVal });
               })}
             </div>
           ))}
@@ -379,25 +378,9 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
                   <label className="block text-xs font-black uppercase tracking-[0.2em] text-slate-500">{getLabel(key)}</label>
                   <span className="text-[10px] font-mono text-slate-300 uppercase">{key}</span>
                 </div>
-                {renderField(key, value, (newVal) => {
-                  setEditContent({ ...editContent, [key]: newVal });
-                })}
+                {renderField(key, value, (newVal) => handleFieldChange(key, newVal))}
               </div>
             ))}
-          </div>
-          
-          <div className="flex justify-end mt-12 pt-8 border-t border-slate-200">
-            <button 
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-primary text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 flex items-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0"
-            >
-              {saving ? (
-                <><span className="material-symbols-outlined animate-spin text-lg">progress_activity</span> Sincronizando...</>
-              ) : (
-                <><span className="material-symbols-outlined text-lg">save</span> Salvar Alterações</>
-              )}
-            </button>
           </div>
         </div>
       )}
@@ -405,13 +388,13 @@ function BlockEditor({ block, onSave, onMove, isFirst, isLast }: {
   );
 }
 
-export default function AdminPageEditor({ initialBlocks, slug }: { initialBlocks: any[], slug?: string }) {
+export default function AdminPageEditor({ initialBlocks, slug, onChange }: { initialBlocks: any[], slug?: string, onChange?: (blocks: any[]) => void }) {
   const [blocks, setBlocks] = useState(initialBlocks || []);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState<'success' | 'error'>('success');
 
-  const handleMoveBlock = async (index: number, direction: 'up' | 'down') => {
+  const handleMoveBlock = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= blocks.length) return;
 
@@ -435,60 +418,13 @@ export default function AdminPageEditor({ initialBlocks, slug }: { initialBlocks
     newBlocks.sort((a, b) => a.order_index - b.order_index);
 
     setBlocks(newBlocks);
-
-    try {
-      if (supabase) {
-        // Update both blocks in database
-        const { error: err1 } = await supabase
-          .from('page_blocks')
-          .update({ order_index: targetOrder })
-          .eq('id', currentBlock.id);
-          
-        const { error: err2 } = await supabase
-          .from('page_blocks')
-          .update({ order_index: currentOrder })
-          .eq('id', targetBlock.id);
-
-        if (err1 || err2) throw err1 || err2;
-      }
-      
-      setModalType('success');
-      setModalMessage('Ordem dos blocos atualizada!');
-      setShowModal(true);
-      setTimeout(() => setShowModal(false), 2000);
-    } catch (error) {
-      console.error('Error reordering blocks:', error);
-      setModalType('error');
-      setModalMessage('Erro ao reordenar blocos.');
-      setShowModal(true);
-    }
+    if (onChange) onChange(newBlocks);
   };
 
-  const handleSave = async (blockId: string, newContent: any) => {
-    try {
-      if (supabase) {
-        const { error } = await supabase
-          .from('page_blocks')
-          .update({ content: newContent })
-          .eq('id', blockId);
-          
-        if (error) throw error;
-      } else {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-      
-      setBlocks(blocks.map(b => b.id === blockId ? { ...b, content: newContent } : b));
-      setModalType('success');
-      setModalMessage('Conteúdo sincronizado com a nuvem!');
-      setShowModal(true);
-      setTimeout(() => setShowModal(false), 3000);
-    } catch (error) {
-      console.error('Error saving block:', error);
-      setModalType('error');
-      setModalMessage('Falha na sincronização. Tente novamente.');
-      setShowModal(true);
-      setTimeout(() => setShowModal(false), 3000);
-    }
+  const handleBlockChange = (blockId: string, newContent: any) => {
+    const newBlocks = blocks.map(b => b.id === blockId ? { ...b, content: newContent } : b);
+    setBlocks(newBlocks);
+    if (onChange) onChange(newBlocks);
   };
 
   if (!blocks || blocks.length === 0) {
@@ -552,7 +488,7 @@ export default function AdminPageEditor({ initialBlocks, slug }: { initialBlocks
           <BlockEditor 
             key={block.id || block.block_name} 
             block={block} 
-            onSave={handleSave}
+            onChange={handleBlockChange}
             onMove={(dir) => handleMoveBlock(index, dir)}
             isFirst={index === 0}
             isLast={index === blocks.length - 1}

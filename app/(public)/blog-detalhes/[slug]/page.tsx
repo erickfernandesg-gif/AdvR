@@ -1,11 +1,16 @@
 import * as motion from "motion/react-client";
 import Link from 'next/link';
+import { getPostBySlug } from '@/lib/db';
+import { notFound } from 'next/navigation';
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   
-  // In a real app, fetch the post based on the slug
-  const post = {
+  // Fetch the post from Supabase
+  const dbPost = await getPostBySlug(slug);
+  
+  // Mock data as fallback for demo purposes
+  const mockPost = {
     title: 'A Gestão Proativa na Remuneração Variável: Antecipando Desafios para Otimizar Resultados',
     category: 'Suporte Proativo',
     date: '17 Mar 2026',
@@ -39,6 +44,17 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     `
   };
 
+  const post = dbPost || (slug === 'suporte-proativo' ? mockPost : null);
+
+  if (!post) {
+    notFound();
+  }
+
+  // Format date if it's from DB
+  const displayDate = post.created_at 
+    ? new Date(post.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+    : (post.date || 'Mar 2026');
+
   return (
     <div className="flex flex-col bg-background min-h-screen pt-48 pb-32">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -57,13 +73,23 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               {post.category}
             </div>
             <div className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-              {post.date}
+              {displayDate}
             </div>
           </div>
           
           <h1 className="text-4xl md:text-6xl font-display font-extrabold text-foreground mb-12 tracking-tighter leading-[1.1]">
             {post.title}
           </h1>
+          
+          {post.image_url && (
+            <div className="relative w-full h-[300px] md:h-[500px] mb-16 rounded-[2.5rem] overflow-hidden shadow-2xl">
+              <img 
+                src={post.image_url} 
+                alt={post.title} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           
           <div className="w-full h-px bg-border"></div>
         </motion.div>

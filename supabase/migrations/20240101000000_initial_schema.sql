@@ -140,3 +140,20 @@ ALTER TABLE public.leads
 ADD COLUMN IF NOT EXISTS setor TEXT,
 ADD COLUMN IF NOT EXISTS tamanho_empresa TEXT,
 ADD COLUMN IF NOT EXISTS cidade TEXT;
+
+CREATE TABLE public.posts (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    excerpt TEXT,
+    content TEXT NOT NULL,
+    category TEXT DEFAULT 'Geral',
+    image_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Permissões de leitura pública
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leitura pública de posts" ON public.posts FOR SELECT USING (true);
+CREATE POLICY "Admins have full access to posts" ON public.posts USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Allow all for anon temporarily" ON public.posts FOR ALL TO anon USING (true) WITH CHECK (true);

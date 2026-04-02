@@ -12,6 +12,8 @@ import PipelineVisual from './blocks/PipelineVisual';
 import TechnicalFocus from './blocks/TechnicalFocus';
 import ContactSection from './blocks/ContactSection';
 import BlogHighlight from './blocks/BlogHighlight';
+import BlogList from './blocks/BlogList';
+import BlogPreview from './blocks/BlogPreview';
 import SocialProof from './blocks/SocialProof';
 import ROICalculator from './blocks/ROICalculator';
 
@@ -27,6 +29,8 @@ const BLOCK_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = 
   technical_focus: TechnicalFocus,
   contact_section: ContactSection,
   blog_highlight: BlogHighlight,
+  blog_list: BlogList,
+  blog_preview: BlogPreview,
   social_proof: SocialProof,
   roi_calculator: ROICalculator,
 };

@@ -129,6 +129,31 @@ export async function getPageBlocks(slug: string) {
   }
   
   if (slug === '/') {
+    let latestPost = {
+      title: 'A Gestão Proativa na Remuneração Variável',
+      excerpt: 'Como antecipar desafios e otimizar resultados através da análise preditiva e feedback contínuo.',
+      category: 'Suporte Proativo',
+      slug: 'suporte-proativo',
+      image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80'
+    };
+
+    if (supabase) {
+      try {
+        const { data } = await supabase
+          .from('posts')
+          .select('title, excerpt, category, slug')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (data) {
+          latestPost = data;
+        }
+      } catch (e) {
+        console.warn('Could not fetch latest post for highlight, using fallback');
+      }
+    }
+
     return [
       {
         block_name: 'hero_section',
@@ -146,12 +171,7 @@ export async function getPageBlocks(slug: string) {
         content: {
           title: 'Insights de Elite',
           subtitle: 'Explorando a intersecção entre tecnologia e performance.',
-          post: {
-            title: 'A Gestão Proativa na Remuneração Variável',
-            excerpt: 'Como antecipar desafios e otimizar resultados através da análise preditiva e feedback contínuo.',
-            category: 'Suporte Proativo',
-            slug: 'suporte-proativo'
-          }
+          post: latestPost
         }
       },
       {
@@ -298,6 +318,31 @@ export async function getPageBlocks(slug: string) {
   }
 
   if (slug === '/blog') {
+    let latestPost = {
+      title: 'A Gestão Proativa na Remuneração Variável',
+      excerpt: 'Como antecipar desafios e otimizar resultados através da análise preditiva e feedback contínuo.',
+      category: 'Suporte Proativo',
+      slug: 'suporte-proativo',
+      image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80'
+    };
+
+    if (supabase) {
+      try {
+        const { data } = await supabase
+          .from('posts')
+          .select('title, excerpt, category, slug')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (data) {
+          latestPost = data;
+        }
+      } catch (e) {
+        console.warn('Could not fetch latest post for highlight, using fallback');
+      }
+    }
+
     return [
       {
         block_name: 'hero_section',
@@ -315,12 +360,14 @@ export async function getPageBlocks(slug: string) {
         content: {
           title: 'Destaque do Mês',
           subtitle: 'O artigo mais lido pela nossa comunidade de diretores.',
-          post: {
-            title: 'A Gestão Proativa na Remuneração Variável',
-            excerpt: 'Como antecipar desafios e otimizar resultados através da análise preditiva e feedback contínuo.',
-            category: 'Suporte Proativo',
-            slug: 'suporte-proativo'
-          }
+          post: latestPost
+        }
+      },
+      {
+        block_name: 'blog_list',
+        content: {
+          title: 'Todos os Insights',
+          subtitle: 'Acesse nossa biblioteca completa de conhecimento.'
         }
       }
     ];
@@ -480,6 +527,72 @@ export async function getPagesCount() {
     }
   }
   return 0;
+}
+
+export async function getPosts() {
+  const fallbackPosts = [
+    {
+      id: 'fallback-1',
+      title: 'A Gestão Proativa na Remuneração Variável: Antecipando Desafios para Otimizar Resultados',
+      excerpt: 'No dinâmico cenário empresarial atual, a capacidade de antecipar é um diferencial competitivo crucial. Isso se aplica intensamente à gestão da remuneração variável.',
+      category: 'Suporte Proativo',
+      slug: 'suporte-proativo',
+      image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80',
+      created_at: new Date().toISOString()
+    }
+  ];
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        if (error.code === 'PGRST116' || error.message.includes('relation "posts" does not exist')) {
+          console.warn('Table "posts" not found, returning fallback');
+          return fallbackPosts;
+        }
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        return fallbackPosts;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      return fallbackPosts;
+    }
+  }
+  return fallbackPosts;
+}
+
+export async function getPostBySlug(slug: string) {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116' || error.message.includes('relation "posts" does not exist')) {
+          console.warn('Table "posts" not found or post not found');
+          return null;
+        }
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error('Error fetching post by slug:', error);
+      return null;
+    }
+  }
+  return null;
 }
 
 export async function getBlocksCount() {

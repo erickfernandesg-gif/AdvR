@@ -127,6 +127,17 @@ export interface ROICalculatorContent {
   cta_text: string;
 }
 
+export interface PortalFeature {
+  title: string;
+  description: string;
+  image_url?: string;
+}
+
+export interface PortalFeaturesContent {
+  title: string;
+  features: PortalFeature[];
+}
+
 export type BlockContent = 
   | HeroContent 
   | BentoContent 
@@ -140,7 +151,8 @@ export type BlockContent =
   | ContactContent 
   | BlogHighlightContent 
   | SocialProofContent
-  | ROICalculatorContent;
+  | ROICalculatorContent
+  | PortalFeaturesContent;
 
 export interface PageBlock {
   id: string;

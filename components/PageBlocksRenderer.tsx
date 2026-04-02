@@ -16,6 +16,8 @@ import BlogList from './blocks/BlogList';
 import BlogPreview from './blocks/BlogPreview';
 import SocialProof from './blocks/SocialProof';
 import ROICalculator from './blocks/ROICalculator';
+import Testimonials from './blocks/Testimonials';
+import PortalFeatures from './blocks/PortalFeatures';
 
 const BLOCK_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = {
   hero_section: HeroSection,
@@ -33,6 +35,8 @@ const BLOCK_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = 
   blog_preview: BlogPreview,
   social_proof: SocialProof,
   roi_calculator: ROICalculator,
+  testimonials: Testimonials,
+  portal_features: PortalFeatures,
 };
 
 export default function PageBlocksRenderer({ blocks }: { blocks: PageBlock[] }) {
@@ -48,7 +52,16 @@ export default function PageBlocksRenderer({ blocks }: { blocks: PageBlock[] }) 
           return null;
         }
 
-        return <Component key={`${block.block_name}-${index}`} content={block.content} />;
+        // Add top padding to the first block if it's not a hero section
+        // This ensures enough breathing room below the transparent navbar
+        const isFirstBlock = index === 0;
+        const needsTopPadding = isFirstBlock && block.block_name !== 'hero_section';
+
+        return (
+          <div key={`${block.block_name}-${index}`} className={needsTopPadding ? "pt-16" : ""}>
+            <Component content={block.content} />
+          </div>
+        );
       })}
     </>
   );

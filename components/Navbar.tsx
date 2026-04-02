@@ -10,10 +10,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [settings, setSettings] = useState<any>(null);
   const pathname = usePathname();
-  const isHome = pathname === '/';
-  
-  // The header is always dark-themed now to match the premium tech aesthetic
-  const isDarkHeader = true;
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -32,7 +28,7 @@ export default function Navbar() {
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || !isHome
+        scrolled
           ? 'bg-[#0A0A0A]/95 backdrop-blur-lg border-b border-white/10 py-4 shadow-sm' 
           : 'bg-transparent py-6'
       }`}

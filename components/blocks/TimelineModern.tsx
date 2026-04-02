@@ -5,7 +5,7 @@ import { TimelineContent } from '@/types/blocks';
 
 export default function TimelineModern({ content }: { content: TimelineContent }) {
   return (
-    <section className="mb-32 overflow-hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 overflow-hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 className="text-2xl font-display font-bold text-foreground mb-16 text-center uppercase tracking-widest">{content.title}</h2>
       <div className="relative">
         <div className="absolute top-1/2 left-0 w-full h-px bg-border -translate-y-1/2 hidden md:block overflow-hidden">

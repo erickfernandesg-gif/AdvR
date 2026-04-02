@@ -90,38 +90,41 @@ export default function HeroSection({ content }: { content: HeroContent }) {
           transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
           className="mt-20 relative mx-auto max-w-5xl animate-float"
         >
-          <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-[#111]">
+          <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-[#111] flex flex-col">
             {/* Mockup Header */}
-            <div className="absolute top-0 w-full h-12 bg-white/5 border-b border-white/10 flex items-center px-4 gap-2 z-20 backdrop-blur-md">
+            <div className="w-full h-12 shrink-0 bg-white/5 border-b border-white/10 flex items-center px-4 gap-2 z-20 backdrop-blur-md">
               <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
               <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
             </div>
             
-            {content.image_link ? (
-              <a href={content.image_link} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+            {/* Image Container */}
+            <div className="relative flex-1 w-full">
+              {content.image_link ? (
+                <a href={content.image_link} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                  <Image 
+                    src={content.image_url} 
+                    alt="Dashboard de Performance" 
+                    fill
+                    className="object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700"
+                    priority
+                    referrerPolicy="no-referrer"
+                  />
+                </a>
+              ) : (
                 <Image 
                   src={content.image_url} 
                   alt="Dashboard de Performance" 
                   fill
-                  className="object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700 mt-12"
+                  className="object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700"
                   priority
                   referrerPolicy="no-referrer"
                 />
-              </a>
-            ) : (
-              <Image 
-                src={content.image_url} 
-                alt="Dashboard de Performance" 
-                fill
-                className="object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700 mt-12"
-                priority
-                referrerPolicy="no-referrer"
-              />
-            )}
-            
-            {/* Overlay Gradient for depth */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent z-10"></div>
+              )}
+              
+              {/* Overlay Gradient for depth (reduced opacity) */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/20 via-transparent to-transparent z-10 pointer-events-none"></div>
+            </div>
           </div>
 
           {/* Floating Stats Card */}

@@ -10,7 +10,7 @@ export default function CultureSection({ content }: { content: CultureContent })
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="bg-background border-2 border-primary/10 p-16 rounded-[4rem] text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 shadow-sm relative overflow-hidden group"
+      className="bg-background border-2 border-primary/10 p-16 rounded-[4rem] text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-24 shadow-sm relative overflow-hidden group"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       

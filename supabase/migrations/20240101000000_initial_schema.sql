@@ -157,3 +157,24 @@ ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir leitura pública de posts" ON public.posts FOR SELECT USING (true);
 CREATE POLICY "Admins have full access to posts" ON public.posts USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Allow all for anon temporarily" ON public.posts FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE TABLE public.depoimentos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome TEXT NOT NULL,
+    empresa TEXT,
+    texto TEXT NOT NULL,
+    img_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Ativa a segurança em nível de linha (RLS)
+ALTER TABLE public.depoimentos ENABLE ROW LEVEL SECURITY;
+
+-- Permite que qualquer pessoa leia os depoimentos (necessário para exibir no site público)
+CREATE POLICY "Permitir leitura pública de depoimentos" ON public.depoimentos
+    FOR SELECT USING (true);
+
+-- Permite que administradores gerenciem os depoimentos
+CREATE POLICY "Admins have full access to depoimentos" ON public.depoimentos 
+    USING (auth.role() = 'authenticated') 
+    WITH CHECK (auth.role() = 'authenticated');

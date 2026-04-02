@@ -11,7 +11,7 @@ export default function BlogHighlight({ content }: { content: any }) {
   const postLink = post.slug ? `/blog-detalhes/${post.slug}` : (post.link || '#');
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
       <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
         <div>
           <h2 className="text-4xl font-display font-extrabold text-foreground tracking-tight mb-4">{content.title}</h2>

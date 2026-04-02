@@ -5,7 +5,7 @@ import { PipelineContent } from '@/types/blocks';
 
 export default function PipelineVisual({ content }: { content: PipelineContent }) {
   return (
-    <section className="mb-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 className="text-2xl font-display font-bold text-foreground mb-16 text-center uppercase tracking-widest">{content.title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
         <div className="absolute top-1/2 left-0 w-full h-px bg-border -translate-y-1/2 hidden md:block -z-10 overflow-hidden">

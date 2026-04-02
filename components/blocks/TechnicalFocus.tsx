@@ -4,7 +4,7 @@ import { TechnicalFocusContent } from '@/types/blocks';
 
 export default function TechnicalFocus({ content }: { content: TechnicalFocusContent }) {
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
       <div className="glow-card bg-background border-2 border-border p-12 rounded-[3rem] shadow-sm">
         <h3 className="text-3xl font-display font-bold mb-8 text-foreground">{content.title}</h3>
         <ul className="space-y-6">

@@ -158,6 +158,26 @@ export async function getPageBlocks(slug: string) {
           });
         }
 
+        // Inject testimonials if missing for /
+        if (slug === '/' && !blocks.find(b => b.block_name === 'testimonials')) {
+          const targetBlock = blocks.find(b => b.block_name === 'expertise' || b.block_name === 'social_proof');
+          const orderIndex = targetBlock ? targetBlock.order_index + 0.5 : 85;
+
+          blocks.push({
+            id: 'injected-testimonials',
+            page_id: page.id,
+            block_name: 'testimonials',
+            order_index: orderIndex,
+            content: {
+              title: 'O que dizem nossos clientes',
+              subtitle: 'Histórias reais de empresas que transformaram sua gestão de remuneração variável com a AdvR.'
+            }
+          });
+          
+          // Sort again by order_index just in case
+          blocks.sort((a, b) => a.order_index - b.order_index);
+        }
+
         return blocks;
       }
     }
@@ -289,6 +309,13 @@ export async function getPageBlocks(slug: string) {
         content: {
           title: 'Líderes de Mercado que Confiam na AdvR',
           companies: ['PHARMACO', 'LOGISTIX', 'FINTECH_CO', 'RETAIL_PRO', 'CORP_GEN']
+        }
+      },
+      {
+        block_name: 'testimonials',
+        content: {
+          title: 'O que dizem nossos clientes',
+          subtitle: 'Histórias reais de empresas que transformaram sua gestão de remuneração variável com a AdvR.'
         }
       },
       {

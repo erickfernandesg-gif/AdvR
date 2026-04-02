@@ -55,6 +55,7 @@ const BLOCK_LABELS: Record<string, string> = {
   blog_highlight: 'Destaque do Blog',
   social_proof: 'Prova Social (Logos)',
   roi_calculator: 'Calculadora de ROI',
+  portal_features: 'Recursos do Portal',
 };
 
 function IconPreview({ iconName }: { iconName: string }) {

@@ -9,7 +9,7 @@ export default function ContactSection({ content }: { content: ContactContent })
   const parts = title.split('.');
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}

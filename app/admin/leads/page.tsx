@@ -11,6 +11,7 @@ export default function AdminLeads() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
+  const [dateFilter, setDateFilter] = useState('todos');
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
@@ -65,7 +66,20 @@ export default function AdminLeads() {
     
     const matchesStatus = statusFilter === 'todos' || lead.status === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    let matchesDate = true;
+    if (dateFilter !== 'todos') {
+      const leadDate = new Date(lead.created_at);
+      const now = new Date();
+      if (dateFilter === '7d') {
+        const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
+        matchesDate = leadDate >= sevenDaysAgo;
+      } else if (dateFilter === '30d') {
+        const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
+        matchesDate = leadDate >= thirtyDaysAgo;
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
   });
 
   return (
@@ -73,13 +87,13 @@ export default function AdminLeads() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-display font-bold text-slate-900">Leads</h1>
         <div className="flex gap-4">
-          <ExportCsvButton leads={leads} />
+          <ExportCsvButton leads={filteredLeads} />
         </div>
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-12">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4 justify-between items-center">
-          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col lg:flex-row gap-4 justify-between items-center">
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
             <div className="relative w-full md:w-64">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
               <input 
@@ -100,6 +114,15 @@ export default function AdminLeads() {
               <option value="em_atendimento">Em Atendimento</option>
               <option value="convertido">Convertido</option>
               <option value="perdido">Perdido</option>
+            </select>
+            <select 
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="w-full md:w-auto bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer"
+            >
+              <option value="todos">Qualquer Data</option>
+              <option value="7d">Últimos 7 dias</option>
+              <option value="30d">Últimos 30 dias</option>
             </select>
           </div>
           {loading && <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>}
@@ -165,7 +188,7 @@ export default function AdminLeads() {
                       <span className="material-symbols-outlined text-5xl opacity-50">person_search</span>
                       <p className="text-lg text-slate-500">Nenhum lead encontrado.</p>
                       <button 
-                        onClick={() => {setSearchTerm(''); setStatusFilter('todos');}}
+                        onClick={() => {setSearchTerm(''); setStatusFilter('todos'); setDateFilter('todos');}}
                         className="text-primary hover:underline text-sm font-medium"
                       >
                         Limpar filtros

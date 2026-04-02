@@ -13,6 +13,7 @@ import TechnicalFocus from './blocks/TechnicalFocus';
 import ContactSection from './blocks/ContactSection';
 import BlogHighlight from './blocks/BlogHighlight';
 import SocialProof from './blocks/SocialProof';
+import ROICalculator from './blocks/ROICalculator';
 
 const BLOCK_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = {
   hero_section: HeroSection,
@@ -27,6 +28,7 @@ const BLOCK_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = 
   contact_section: ContactSection,
   blog_highlight: BlogHighlight,
   social_proof: SocialProof,
+  roi_calculator: ROICalculator,
 };
 
 export default function PageBlocksRenderer({ blocks }: { blocks: PageBlock[] }) {

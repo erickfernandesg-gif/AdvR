@@ -55,4 +55,74 @@
   .text-gradient-electric {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
   }
+
+  /* Premium Micro-interactions */
+  .btn-premium {
+    @apply relative overflow-hidden bg-white text-black px-8 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-all hover:bg-slate-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.15)];
+  }
+
+  .btn-premium::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+    transform: skewX(-20deg);
+    animation: shine 3s infinite;
+  }
+
+  .btn-premium-dark {
+    @apply relative overflow-hidden bg-transparent text-white border border-white/20 px-8 py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-white/5 hover:border-white/40 transition-all flex items-center justify-center backdrop-blur-sm;
+  }
+
+  .btn-premium-dark::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    transform: skewX(-20deg);
+    animation: shine 3s infinite;
+  }
+
+  .glow-card {
+    @apply relative overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(37,99,235,0.15)] hover:-translate-y-2;
+  }
+
+  .glow-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.7s ease;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .glow-card:hover::before {
+    left: 100%;
+  }
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  20% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

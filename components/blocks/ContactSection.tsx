@@ -28,7 +28,7 @@ export default function ContactSection({ content }: { content: ContactContent })
           </p>
           
           <div className="space-y-8">
-            <div className="flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
+            <div className="glow-card flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
               <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
                 <span className="material-symbols-outlined">mail</span>
               </div>
@@ -37,7 +37,7 @@ export default function ContactSection({ content }: { content: ContactContent })
                 <div className="text-lg font-bold text-foreground">{content.email}</div>
               </div>
             </div>
-            <div className="flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
+            <div className="glow-card flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
               <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
                 <span className="material-symbols-outlined">location_on</span>
               </div>
@@ -46,6 +46,32 @@ export default function ContactSection({ content }: { content: ContactContent })
                 <div className="text-lg font-bold text-foreground">{content.location}</div>
               </div>
             </div>
+            {content.phone && (
+              <div className="glow-card flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
+                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+                  <span className="material-symbols-outlined">phone</span>
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Telefone</div>
+                  <div className="text-lg font-bold text-foreground">{content.phone}</div>
+                </div>
+              </div>
+            )}
+            {content.whatsapp && (
+              <div className="glow-card flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
+                <div className="w-12 h-12 bg-[#25D366] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#25D366]/20">
+                  <span className="material-symbols-outlined">chat</span>
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">WhatsApp</div>
+                  <div className="text-lg font-bold text-foreground">
+                    <a href={`https://api.whatsapp.com/send?phone=${content.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      {content.whatsapp}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -56,7 +82,7 @@ export default function ContactSection({ content }: { content: ContactContent })
           transition={{ duration: 0.6, delay: 0.2 }}
           className="lg:col-span-7"
         >
-          <div className="bg-background p-10 rounded-[3rem] border border-border shadow-2xl relative">
+          <div className="glow-card bg-background p-10 rounded-[3rem] border border-border shadow-2xl relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 -z-10"></div>
             <h2 className="text-2xl font-display font-bold text-foreground mb-8">{content.form_title}</h2>
             <LeadForm buttonText={content.form_button} />

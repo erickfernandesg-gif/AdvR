@@ -13,7 +13,7 @@ export default function DataStorytelling({ content }: { content: DataStorytellin
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: i * 0.1 }}
-          className="text-center p-12 bg-background rounded-[3rem] border border-border shadow-sm hover:shadow-md transition-shadow"
+          className="glow-card text-center p-12 bg-background rounded-[3rem] border border-border shadow-sm hover:shadow-md transition-shadow"
         >
           <div className="text-6xl lg:text-8xl font-display font-black text-primary mb-4 tracking-tighter">
             {stat.value}{stat.suffix}

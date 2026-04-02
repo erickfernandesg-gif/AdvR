@@ -18,7 +18,7 @@ export default function SolucoesBento({ content }: { content: BentoContent }) {
             <motion.div 
               key={card.id}
               whileHover={{ y: -5 }}
-              className={`${i === 0 || i === 3 ? 'md:col-span-2' : ''} ${i === 1 ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : i === 2 ? 'bg-background border-primary/20 border-2' : 'bg-background border border-border shadow-sm'} p-8 rounded-[2.5rem] flex flex-col justify-between group`}
+              className={`glow-card ${i === 0 || i === 3 ? 'md:col-span-2' : ''} ${i === 1 ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : i === 2 ? 'bg-background border-primary/20 border-2' : 'bg-background border border-border shadow-sm'} p-8 rounded-[2.5rem] flex flex-col justify-between group`}
             >
               <div>
                 <div className={`w-12 h-12 ${i === 1 ? 'bg-white/20' : 'bg-primary/10 text-primary'} rounded-2xl flex items-center justify-center mb-6`}>

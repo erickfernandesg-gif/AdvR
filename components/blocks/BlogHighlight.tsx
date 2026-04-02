@@ -19,7 +19,7 @@ export default function BlogHighlight({ content }: { content: BlogHighlightConte
         </Link>
       </div>
       <Link href={`/blog-detalhes/${post.slug}`} className="group block">
-        <div className="bg-background border-2 border-border p-12 rounded-[3rem] text-foreground relative overflow-hidden shadow-sm hover:shadow-xl transition-all">
+        <div className="glow-card bg-background border-2 border-border p-12 rounded-[3rem] text-foreground relative overflow-hidden shadow-sm hover:shadow-xl transition-all">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
           <div className="relative z-10">
             <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest inline-block mb-8">

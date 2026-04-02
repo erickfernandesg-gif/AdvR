@@ -7,6 +7,36 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
   const [editContent, setEditContent] = useState(block.content || {});
   const [saving, setSaving] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: any) => void) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return;
+      const file = e.target.files[0];
+      setUploading(true);
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      if (!supabase) throw new Error('Supabase client not initialized');
+
+      const { error: uploadError } = await supabase.storage
+        .from('uploads')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('uploads').getPublicUrl(filePath);
+      
+      onChange(data.publicUrl);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Erro ao fazer upload da imagem. Verifique se o bucket "uploads" existe no Supabase.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -16,7 +46,66 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
 
   const renderField = (key: string, value: any, onChange: (val: any) => void) => {
     if (typeof value === 'string') {
-      if (value.length > 100 || key.includes('description') || key.includes('subtitle') || key.includes('text')) {
+      if (key.includes('image_url') || key.includes('imagem')) {
+        return (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-slate-400">image</span>
+              <input
+                type="text"
+                placeholder="Cole o link (URL) da imagem aqui..."
+                className="flex-1 bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              />
+              <div className="relative">
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, onChange)}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  disabled={uploading}
+                  title="Fazer upload de imagem"
+                />
+                <button 
+                  type="button"
+                  disabled={uploading}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-4 rounded-xl font-bold transition-colors flex items-center gap-2 border border-slate-200 whitespace-nowrap disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">upload</span>
+                  )}
+                  {uploading ? 'Enviando...' : 'Upload'}
+                </button>
+              </div>
+            </div>
+            {value && (
+              <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 relative h-32 w-full max-w-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={value} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Imagem+Inv%C3%A1lida'; }} />
+              </div>
+            )}
+            <p className="text-xs text-slate-500">Dica: Use imagens de alta qualidade (ex: Unsplash) para um visual mais profissional.</p>
+          </div>
+        );
+      }
+      if (key.includes('image_link') || key.includes('url_destino')) {
+        return (
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-slate-400">link</span>
+            <input
+              type="text"
+              placeholder="Link de destino ao clicar na imagem (opcional)..."
+              className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+            />
+          </div>
+        );
+      }
+      if (value.length > 100 || key.includes('description') || key.includes('subtitle') || key.includes('text') || key.includes('conteudo')) {
         return (
           <textarea
             className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"

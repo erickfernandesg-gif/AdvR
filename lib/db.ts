@@ -23,6 +23,103 @@ export async function getGlobalSettings() {
 }
 
 export async function getPageBlocks(slug: string) {
+  if (slug === '/empresa') {
+    return [
+      {
+        block_name: 'hero_section',
+        content: {
+          title: 'CREDIBILIDADE E CONFIANÇA É O QUE NOS MOVE HÁ 30 ANOS',
+          subtitle: 'A Advanced Resources é uma empresa focada em soluções para gestão de resultados através de incentivos (remuneração variável), atuando no mercado há mais de 30 anos sempre de forma inovadora, utilizando metodologias modernas para entregar o melhor aos nossos clientes.',
+          primary_button: 'Entre em Contato',
+          secondary_button: 'Fale no WhatsApp',
+          image_url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80',
+          image_link: '/contato'
+        }
+      },
+      {
+        block_name: 'timeline_modern',
+        content: {
+          title: 'Nossa Jornada de Excelência',
+          milestones: [
+            {
+              year: '1994',
+              title: 'Fundação',
+              description: 'Início das operações focadas em consultoria de remuneração estratégica em São Paulo.'
+            },
+            {
+              year: '2014',
+              title: 'Era Digital',
+              description: 'Lançamento das primeiras plataformas de automação de incentivos e BI.'
+            },
+            {
+              year: '2024',
+              title: 'Liderança & IA',
+              description: 'Consolidação como referência em gestão proativa e integração de dados complexos.'
+            }
+          ]
+        }
+      },
+      {
+        block_name: 'solucoes_bento',
+        content: {
+          title: 'Nossos Pilares Estratégicos',
+          subtitle: 'Missão, Visão e Valores que guiam nossa entrega de elite.',
+          cards: [
+            {
+              id: 'missao',
+              title: 'Missão',
+              tag: 'Propósito',
+              description: 'Transformar a gestão de resultados através de tecnologia e inteligência, gerando valor real para empresas e colaboradores.',
+              icon: 'rocket_launch'
+            },
+            {
+              id: 'visao',
+              title: 'Visão',
+              tag: 'Futuro',
+              description: 'Ser a principal parceira estratégica das maiores corporações do Brasil em engenharia de remuneração variável.',
+              icon: 'visibility'
+            },
+            {
+              id: 'valores',
+              title: 'Valores',
+              tag: 'DNA',
+              description: 'Ética, Transparência, Inovação Constante e Foco Absoluto no Resultado do Cliente.',
+              icon: 'verified'
+            }
+          ]
+        }
+      },
+      {
+        block_name: 'social_proof',
+        content: {
+          title: 'Líderes de Mercado que Confiam na AdvR',
+          companies: ['PHARMACO', 'LOGISTIX', 'FINTECH_CO', 'RETAIL_PRO', 'CORP_GEN']
+        }
+      },
+      {
+        block_name: 'culture_section',
+        content: {
+          title: 'Inovação e Engajamento',
+          description: 'Inovando com visões e facilitadores para engajar seu time de vendas com suas metas, onde eles estiverem, deixando seu sistema de RV transparente, flexível e potencializando seus resultados.',
+          tags: ['Transparência', 'Flexibilidade', 'Engajamento', 'Inovação', 'Metodologias Modernas']
+        }
+      },
+      {
+        block_name: 'contact_section',
+        content: {
+          title: 'Fale com nossos especialistas',
+          subtitle: 'Estamos prontos para ajudar a sua empresa a alcançar novos resultados.',
+          email: 'contato@advresources.com.br',
+          location: 'São Paulo, SP - Brasil',
+          phone: '11 4123 9260',
+          whatsapp: '55 11 99388-8190',
+          form_title: 'Envie uma mensagem',
+          form_button: 'Enviar'
+        }
+      }
+    ];
+  }
+
   if (supabase) {
     const { data: page } = await supabase.from('pages').select('id').eq('slug', slug).single();
     if (page) {
@@ -40,7 +137,8 @@ export async function getPageBlocks(slug: string) {
           subtitle: 'Transformamos dados complexos em performance extraordinária com o Motor Colossus.',
           primary_button: 'Solicitar Demo Colossus',
           secondary_button: 'Conversa Estratégica',
-          image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80'
+          image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80',
+          image_link: '/solucoes'
         }
       },
       {
@@ -103,6 +201,14 @@ export async function getPageBlocks(slug: string) {
         }
       },
       {
+        block_name: 'roi_calculator',
+        content: {
+          title: 'Simule sua Economia com AdvR',
+          subtitle: 'Descubra quanto sua empresa pode economizar eliminando erros de cálculo e processos manuais.',
+          cta_text: 'Solicitar Estudo de ROI Completo'
+        }
+      },
+      {
         block_name: 'data_belt',
         content: {
           title: 'Esteira de Dados Inteligente',
@@ -149,51 +255,6 @@ export async function getPageBlocks(slug: string) {
     ];
   }
   
-  if (slug === '/empresa') {
-    return [
-      {
-        block_name: 'hero_section',
-        content: {
-          title: 'Autoridade de 30 Anos em Engenharia de Resultados',
-          subtitle: 'Uma história construída sobre código sólido, precisão matemática e compliance enterprise.',
-          primary_button: 'Nossa História',
-          secondary_button: 'Fale Conosco',
-          image_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80'
-        }
-      },
-      {
-        block_name: 'data_storytelling',
-        content: {
-          stats: [
-            { value: '+30', label: 'Anos de Código Sólido', suffix: '' },
-            { value: '+10', label: 'Calculados com Sucesso', suffix: 'Bi' },
-            { value: '100%', label: 'Compliance Enterprise', suffix: '' }
-          ]
-        }
-      },
-      {
-        block_name: 'timeline_modern',
-        content: {
-          title: 'Evolução Tecnológica',
-          milestones: [
-            { year: '1996', title: 'Fundação', description: 'Início com foco em Lotus Notes e automação de processos.' },
-            { year: '2008', title: 'Nuvem', description: 'Migração estratégica para arquiteturas cloud-first.' },
-            { year: '2018', title: 'ETL Inteligente', description: 'Lançamento do motor de ingestão de dados de alta performance.' },
-            { year: '2024', title: 'Colossus', description: 'A evolução definitiva em cálculo de remuneração variável.' }
-          ]
-        }
-      },
-      {
-        block_name: 'culture_section',
-        content: {
-          title: 'Nossa Cultura de Precisão',
-          description: 'Acreditamos que a remuneração justa é o motor do engajamento. Por isso, nossa cultura é focada em eliminar o erro e promover a transparência através do código.',
-          tags: ['Agilidade', 'Transparência', 'Inovação', 'Compliance']
-        }
-      }
-    ];
-  }
-
   if (slug === '/solucoes') {
     return [
       {
@@ -203,7 +264,8 @@ export async function getPageBlocks(slug: string) {
           subtitle: 'Nossa tecnologia proprietária foi desenhada para lidar com a complexidade da remuneração variável de grandes corporações.',
           primary_button: 'Solicitar Demo',
           secondary_button: 'Ver Documentação',
-          image_url: 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80'
+          image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80',
+          image_link: ''
         }
       },
       {
@@ -244,7 +306,8 @@ export async function getPageBlocks(slug: string) {
           subtitle: 'Explorando a intersecção entre tecnologia, precisão matemática e performance humana na remuneração variável.',
           primary_button: 'Assinar Newsletter',
           secondary_button: 'Ver Categorias',
-          image_url: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80'
+          image_url: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80',
+          image_link: ''
         }
       },
       {
@@ -286,7 +349,8 @@ export async function getPageBlocks(slug: string) {
         content: {
           title: 'Portal de Incentivos: Plataforma Inteligente',
           subtitle: 'Utilize de qualquer lugar, em qualquer dispositivo. Visualize as principais informações e avisos sobre a premiação.',
-          image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80',
+          image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80',
+          image_link: '',
           primary_button: 'Acessar Portal',
           secondary_button: 'Fale Conosco'
         }

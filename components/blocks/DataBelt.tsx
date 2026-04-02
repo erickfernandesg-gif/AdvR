@@ -12,7 +12,14 @@ export default function DataBelt({ content }: { content: DataBeltContent }) {
         </h2>
         
         <div className="relative">
-          <div className="absolute top-1/2 left-0 w-full h-px bg-primary/20 -translate-y-1/2 hidden lg:block"></div>
+          <div className="absolute top-1/2 left-0 w-full h-px bg-primary/20 -translate-y-1/2 hidden lg:block overflow-hidden">
+            <motion.div 
+              initial={{ x: '-100%' }}
+              whileInView={{ x: '100%' }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-1/3 h-full bg-gradient-to-r from-transparent via-primary to-transparent"
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 relative z-10">
             {content.steps.map((step, i: number) => (
               <motion.div 

@@ -1,5 +1,11 @@
 import { supabase } from '@/lib/db';
 import { ExternalLink, Calendar, AlertCircle, Newspaper } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Novidades e Atualizações',
+  description: 'Acompanhe nossas últimas atualizações, artigos e postagens diretamente do nosso LinkedIn sobre remuneração variável e engenharia de dados.',
+};
 
 // Define the type for our LinkedIn news
 interface Novidade {

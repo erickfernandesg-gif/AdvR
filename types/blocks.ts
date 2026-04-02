@@ -4,6 +4,7 @@ export interface HeroContent {
   primary_button: string;
   secondary_button: string;
   image_url: string;
+  image_link?: string;
 }
 
 export interface BentoCard {
@@ -93,6 +94,8 @@ export interface ContactContent {
   subtitle: string;
   email: string;
   location: string;
+  phone?: string;
+  whatsapp?: string;
   form_title: string;
   form_button: string;
 }
@@ -115,6 +118,12 @@ export interface SocialProofContent {
   companies: string[];
 }
 
+export interface ROICalculatorContent {
+  title: string;
+  subtitle: string;
+  cta_text: string;
+}
+
 export type BlockContent = 
   | HeroContent 
   | BentoContent 
@@ -127,7 +136,8 @@ export type BlockContent =
   | TechnicalFocusContent 
   | ContactContent 
   | BlogHighlightContent 
-  | SocialProofContent;
+  | SocialProofContent
+  | ROICalculatorContent;
 
 export interface PageBlock {
   id: string;

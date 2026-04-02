@@ -15,7 +15,7 @@ export default function VideoSection({ content }: { content: VideoContent }) {
           </p>
         </div>
         
-        <div className="relative aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl border border-border bg-secondary">
+        <div className="glow-card relative aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl border border-border bg-secondary">
           <iframe 
             className="absolute inset-0 w-full h-full"
             src={`https://www.youtube.com/embed/${content.video_id}`}

@@ -65,7 +65,13 @@ function IconPreview({ iconName }: { iconName: string }) {
   );
 }
 
-function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, content: any) => Promise<void> }) {
+function BlockEditor({ block, onSave, onMove, isFirst, isLast }: { 
+  block: any, 
+  onSave: (id: string, content: any) => Promise<void>,
+  onMove: (direction: 'up' | 'down') => void,
+  isFirst: boolean,
+  isLast: boolean
+}) {
   const [editContent, setEditContent] = useState(block.content || {});
   const [saving, setSaving] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -306,11 +312,16 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
 
   return (
     <div className={`bg-white rounded-[2rem] border transition-all duration-300 overflow-hidden group/block ${isExpanded ? 'border-primary shadow-xl ring-1 ring-primary/10' : 'border-slate-200 hover:border-slate-300 shadow-sm'}`}>
-      <button 
-        onClick={() => setIsExpanded(!isExpanded)}
-        className={`w-full flex justify-between items-center p-8 focus:outline-none text-left transition-colors ${isExpanded ? 'bg-slate-50/50' : 'bg-white'}`}
+      <div 
+        className={`w-full flex justify-between items-center p-8 transition-colors ${isExpanded ? 'bg-slate-50/50' : 'bg-white'}`}
       >
-        <div className="flex items-center gap-6">
+        <div 
+          onClick={() => setIsExpanded(!isExpanded)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsExpanded(!isExpanded); } }}
+          tabIndex={0}
+          role="button"
+          className="flex-1 flex items-center gap-6 cursor-pointer group/toggle focus:outline-none"
+        >
           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isExpanded ? 'bg-primary text-white rotate-6 scale-110 shadow-lg shadow-primary/20' : 'bg-slate-100 text-slate-500 group-hover/block:bg-slate-200'}`}>
             <span className="material-symbols-outlined text-3xl">
               {block.block_name.includes('hero') ? 'web_asset' : 
@@ -321,7 +332,7 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
             </span>
           </div>
           <div>
-            <h4 className="font-display font-black text-slate-900 text-xl tracking-tight">{BLOCK_LABELS[block.block_name] || block.block_name.replace(/_/g, ' ')}</h4>
+            <h4 className="font-display font-black text-slate-900 text-xl tracking-tight group-hover/toggle:text-primary transition-colors">{BLOCK_LABELS[block.block_name] || block.block_name.replace(/_/g, ' ')}</h4>
             <div className="flex items-center gap-3 mt-2">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 bg-slate-200/50 px-3 py-1 rounded-full">Posição: {block.order_index}</span>
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary bg-blue-100 px-3 py-1 rounded-full flex items-center gap-1">
@@ -331,10 +342,33 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
             </div>
           </div>
         </div>
-        <div className={`w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center transition-all duration-300 ${isExpanded ? 'rotate-180 bg-primary border-primary text-white' : 'text-slate-400 group-hover/block:border-slate-400 group-hover/block:text-slate-600'}`}>
-          <span className="material-symbols-outlined">expand_more</span>
+        <div className="flex items-center gap-4 ml-4">
+          <div className="flex flex-col gap-1">
+            <button 
+              onClick={(e) => { e.stopPropagation(); onMove('up'); }}
+              disabled={isFirst}
+              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all"
+              title="Mover para cima"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_upward</span>
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); onMove('down'); }}
+              disabled={isLast}
+              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all"
+              title="Mover para baixo"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_downward</span>
+            </button>
+          </div>
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center transition-all duration-300 ${isExpanded ? 'rotate-180 bg-primary border-primary text-white' : 'text-slate-400 hover:border-primary hover:text-primary'}`}
+          >
+            <span className="material-symbols-outlined">expand_more</span>
+          </button>
         </div>
-      </button>
+      </div>
       
       {isExpanded && (
         <div className="p-8 pt-0 border-t border-slate-100 bg-slate-50/30">
@@ -371,11 +405,64 @@ function BlockEditor({ block, onSave }: { block: any, onSave: (id: string, conte
   );
 }
 
-export default function AdminPageEditor({ initialBlocks }: { initialBlocks: any[] }) {
+export default function AdminPageEditor({ initialBlocks, slug }: { initialBlocks: any[], slug?: string }) {
   const [blocks, setBlocks] = useState(initialBlocks || []);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState<'success' | 'error'>('success');
+
+  const handleMoveBlock = async (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= blocks.length) return;
+
+    const newBlocks = [...blocks];
+    
+    // Swap blocks
+    const currentBlock = { ...newBlocks[index] };
+    const targetBlock = { ...newBlocks[newIndex] };
+    
+    // Swap order_index values
+    const currentOrder = currentBlock.order_index;
+    const targetOrder = targetBlock.order_index;
+    
+    currentBlock.order_index = targetOrder;
+    targetBlock.order_index = currentOrder;
+    
+    newBlocks[index] = targetBlock;
+    newBlocks[newIndex] = currentBlock;
+
+    // Sort by order_index just in case
+    newBlocks.sort((a, b) => a.order_index - b.order_index);
+
+    setBlocks(newBlocks);
+
+    try {
+      if (supabase) {
+        // Update both blocks in database
+        const { error: err1 } = await supabase
+          .from('page_blocks')
+          .update({ order_index: targetOrder })
+          .eq('id', currentBlock.id);
+          
+        const { error: err2 } = await supabase
+          .from('page_blocks')
+          .update({ order_index: currentOrder })
+          .eq('id', targetBlock.id);
+
+        if (err1 || err2) throw err1 || err2;
+      }
+      
+      setModalType('success');
+      setModalMessage('Ordem dos blocos atualizada!');
+      setShowModal(true);
+      setTimeout(() => setShowModal(false), 2000);
+    } catch (error) {
+      console.error('Error reordering blocks:', error);
+      setModalType('error');
+      setModalMessage('Erro ao reordenar blocos.');
+      setShowModal(true);
+    }
+  };
 
   const handleSave = async (blockId: string, newContent: any) => {
     try {
@@ -439,17 +526,39 @@ export default function AdminPageEditor({ initialBlocks }: { initialBlocks: any[
         )}
       </div>
 
-      <div className="flex items-center gap-4 mb-8 px-2">
-        <span className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm">
-          {blocks.length}
-        </span>
-        <h3 className="text-lg font-display font-bold text-slate-900 uppercase tracking-widest">Blocos de Conteúdo</h3>
-        <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent ml-4"></div>
+      <div className="flex items-center justify-between mb-8 px-2">
+        <div className="flex items-center gap-4">
+          <span className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm">
+            {blocks.length}
+          </span>
+          <h3 className="text-lg font-display font-bold text-slate-900 uppercase tracking-widest">Blocos de Conteúdo</h3>
+        </div>
+        
+        {slug && (
+          <a 
+            href={`/${slug}`} 
+            target="_blank" 
+            rel="noreferrer"
+            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary hover:text-blue-700 transition-colors group"
+          >
+            Visualizar Página no Site
+            <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">open_in_new</span>
+          </a>
+        )}
       </div>
 
-      {blocks.map((block: any) => (
-        <BlockEditor key={block.id || block.block_name} block={block} onSave={handleSave} />
-      ))}
+      <div className="space-y-6">
+        {blocks.map((block: any, index: number) => (
+          <BlockEditor 
+            key={block.id || block.block_name} 
+            block={block} 
+            onSave={handleSave}
+            onMove={(dir) => handleMoveBlock(index, dir)}
+            isFirst={index === 0}
+            isLast={index === blocks.length - 1}
+          />
+        ))}
+      </div>
     </div>
   );
 }

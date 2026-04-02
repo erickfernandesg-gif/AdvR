@@ -122,7 +122,7 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
                   </div>
                 </div>
                 <div className="p-10">
-                  <AdminPageEditor initialBlocks={selectedPage.blocks} />
+                  <AdminPageEditor initialBlocks={selectedPage.blocks} slug={selectedPage.slug} />
                 </div>
               </div>
             </motion.div>

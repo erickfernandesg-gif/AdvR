@@ -7,6 +7,7 @@ export default async function AdminPages() {
   const solucoesBlocks = (await getPageBlocks('/solucoes')) || [];
   const blogBlocks = (await getPageBlocks('/blog')) || [];
   const contatoBlocks = (await getPageBlocks('/contato')) || [];
+  const portalBlocks = (await getPageBlocks('/portal')) || [];
 
   const pagesData = [
     { title: 'Home - AdvR', slug: '/', blocks: homeBlocks },
@@ -14,6 +15,7 @@ export default async function AdminPages() {
     { title: 'Soluções - AdvR', slug: '/solucoes', blocks: solucoesBlocks },
     { title: 'Blog (Insights) - AdvR', slug: '/blog', blocks: blogBlocks },
     { title: 'Contato - AdvR', slug: '/contato', blocks: contatoBlocks },
+    { title: 'Portal de Incentivos', slug: '/portal', blocks: portalBlocks },
   ];
 
   return <AdminPagesClient pagesData={pagesData} />;

@@ -58,7 +58,6 @@ export default function AdminLayout({
       title: 'CONTEÚDO',
       items: [
         { label: 'Páginas (CMS)', href: '/admin/pages', icon: 'description' },
-        { label: 'Editor CMS', href: '/admin/editor', icon: 'edit_note' },
         { label: 'Depoimentos', href: '/admin/depoimentos', icon: 'format_quote' },
       ]
     },

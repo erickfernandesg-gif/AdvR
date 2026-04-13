@@ -11,8 +11,11 @@ const FIELD_LABELS: Record<string, string> = {
   description: 'Descrição Detalhada',
   primary_button: 'Texto do Botão Principal',
   secondary_button: 'Texto do Botão Secundário',
+  primary_button_link: 'Link do Botão Principal',
+  secondary_button_link: 'Link do Botão Secundário',
   image_url: 'URL da Imagem (Link)',
   image_link: 'Link de Destino da Imagem',
+  video_id: 'ID do Vídeo (YouTube)',
   icon: 'Ícone (Material Symbol)',
   tag: 'Etiqueta / Badge',
   year: 'Ano / Data',
@@ -136,7 +139,7 @@ function BlockEditor({ block, onChange, onMove, isFirst, isLast }: {
       }
 
       // Campo de Imagem
-      if (key.includes('image_url') || key.includes('imagem')) {
+      if (key.includes('image') || key.includes('imagem') || key.includes('foto')) {
         return (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -276,8 +279,16 @@ function BlockEditor({ block, onChange, onMove, isFirst, isLast }: {
               let newItem: any = '';
               if (value.length > 0) {
                 newItem = typeof value[0] === 'string' ? '' : Object.keys(value[0] || {}).reduce((acc, k) => ({ ...acc, [k]: '' }), {});
-              } else if (key === 'companies' || key === 'features' || key === 'steps' || key === 'tags') {
+              } else if (key === 'companies' || key === 'tags') {
                 newItem = '';
+              } else if (key === 'features') {
+                newItem = { title: '', description: '', icon: '' }; // Default fallback
+              } else if (key === 'steps') {
+                newItem = { title: '', description: '', icon: '' };
+              } else if (key === 'cards') {
+                newItem = { title: '', description: '', icon: '' };
+              } else if (key === 'milestones') {
+                newItem = { year: '', title: '', description: '' };
               } else {
                 newItem = {};
               }

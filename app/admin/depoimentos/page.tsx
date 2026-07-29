@@ -178,14 +178,18 @@ export default function AdminDepoimentos() {
 
   return (
     <div className="space-y-10">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5">
         <div>
-          <h1 className="text-4xl font-display font-black text-slate-900 tracking-tight">Depoimentos</h1>
-          <p className="text-slate-500 font-medium mt-2">Gerencie os depoimentos exibidos na página inicial.</p>
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-primary mb-3">
+            <span className="material-symbols-outlined text-base">format_quote</span>
+            PROVA SOCIAL
+          </div>
+          <h1 className="text-3xl font-display font-bold text-slate-950 tracking-tight">Depoimentos</h1>
+          <p className="text-slate-500 mt-2">Adicione e revise os relatos exibidos no site.</p>
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="bg-primary text-white px-6 py-3 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+          className="bg-primary text-white px-5 py-3 rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2"
         >
           <span className="material-symbols-outlined">add</span>
           Novo Depoimento

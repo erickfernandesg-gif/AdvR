@@ -109,18 +109,23 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-5">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Dashboard de Performance</h1>
-          <p className="text-slate-500 mt-1">Visão geral da sua operação de leads e conteúdo.</p>
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-primary mb-3">
+            <span className="material-symbols-outlined text-base">space_dashboard</span>
+            VISÃO GERAL
+          </div>
+          <h1 className="text-3xl font-display font-bold text-slate-950">Olá, bem-vindo ao painel</h1>
+          <p className="text-slate-500 mt-2">Acompanhe seus leads e mantenha o conteúdo do site atualizado.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {loading && <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>}
           <ExportCsvButton leads={leads} />
           <button 
             onClick={fetchDashboardData}
-            className="p-2 text-slate-400 hover:text-primary transition-colors rounded-lg hover:bg-slate-100"
+            className="w-11 h-11 text-slate-500 border border-slate-200 bg-white hover:text-primary hover:border-primary/30 transition-colors rounded-xl flex items-center justify-center"
             title="Atualizar dados"
+            aria-label="Atualizar dados"
           >
             <span className="material-symbols-outlined">refresh</span>
           </button>
@@ -128,7 +133,7 @@ export default function AdminDashboard() {
       </div>
       
       {/* Top Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -21,6 +21,7 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
   const [editedBlocks, setEditedBlocks] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const selectedPage = pages.find(p => p.slug === selectedSlug);
 
@@ -35,6 +36,35 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
   }, [selectedSlug, selectedPage]);
 
   const hasChanges = JSON.stringify(editedBlocks) !== JSON.stringify(selectedPage?.blocks);
+  const changedBlocksCount = editedBlocks.filter(block => {
+    const originalBlock = selectedPage?.blocks.find(original =>
+      UUID_PATTERN.test(block.id || '')
+        ? original.id === block.id
+        : original.block_name === block.block_name
+    );
+
+    return JSON.stringify(block) !== JSON.stringify(originalBlock);
+  }).length;
+
+  useEffect(() => {
+    if (!hasChanges) return;
+
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', warnBeforeLeaving);
+    return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
+  }, [hasChanges]);
+
+  const handleSelectPage = (slug: string) => {
+    if (slug === selectedSlug) return;
+    if (hasChanges && !window.confirm('Você possui alterações não publicadas. Deseja descartá-las e trocar de página?')) {
+      return;
+    }
+
+    setSelectedSlug(slug);
+  };
 
   const handleDiscard = () => {
     if (selectedPage) {
@@ -46,6 +76,7 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
     if (!selectedPage || !hasChanges) return;
     
     setIsSaving(true);
+    setSaveError(null);
     try {
       if (supabase) {
         let pageId: string | null = null;
@@ -160,89 +191,86 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
     } catch (error) {
       console.error('Error publishing changes:', error);
       const message = error instanceof Error ? error.message : 'Erro desconhecido';
-      alert(`Erro ao publicar alterações: ${message}`);
+      setSaveError(message);
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="space-y-10 relative min-h-screen pb-32">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className="space-y-8 relative pb-28">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5">
         <div>
-          <h1 className="text-4xl font-display font-black text-slate-900 tracking-tight">Gestão de Conteúdo (CMS)</h1>
-          <p className="text-slate-500 font-medium mt-2 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Painel de controle estratégico para o site AdvR.
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-primary mb-3">
+            <span className="material-symbols-outlined text-base">edit_note</span>
+            CONTEÚDO DO SITE
+          </div>
+          <h1 className="text-3xl font-display font-bold text-slate-950 tracking-tight">Edite suas páginas</h1>
+          <p className="text-slate-500 mt-2 max-w-2xl">
+            Escolha uma página, altere os campos necessários e publique quando estiver tudo pronto.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-          <div className="px-4 py-2 bg-white rounded-xl shadow-sm text-xs font-black uppercase tracking-widest text-primary border border-slate-200">
-            Modo Edição
-          </div>
-          <div className="px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-400">
-            Preview
-          </div>
-        </div>
+        <a
+          href={selectedPage?.slug || '/'}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:text-primary hover:border-primary/30 transition-colors"
+        >
+          <span className="material-symbols-outlined text-lg">visibility</span>
+          {hasChanges ? 'Ver versão publicada' : 'Visualizar página'}
+        </a>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Sidebar - Pages List */}
         <aside className="lg:col-span-3">
-          <div className="sticky top-8 space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Páginas Ativas</h2>
-              <span className="text-[10px] font-black text-primary bg-blue-50 px-2 py-0.5 rounded-full">{pages.length}</span>
+          <div className="lg:sticky lg:top-28 bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
+            <div className="flex items-center justify-between px-3 py-2 mb-1">
+              <h2 className="text-xs font-bold text-slate-500">Páginas</h2>
+              <span className="text-xs font-bold text-primary bg-blue-50 px-2 py-1 rounded-lg">{pages.length}</span>
             </div>
             
-            <nav className="space-y-3">
+            <nav className="space-y-1 max-h-[360px] lg:max-h-none overflow-y-auto">
               {pages.map((p, index) => (
                 <motion.button
                   key={p.slug}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={() => setSelectedSlug(p.slug)}
-                  className={`w-full text-left p-5 rounded-[1.5rem] transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${
+                  onClick={() => handleSelectPage(p.slug)}
+                  className={`w-full text-left px-3 py-3 rounded-xl transition-colors flex items-center justify-between group ${
                     selectedSlug === p.slug 
-                      ? 'bg-white text-primary shadow-xl shadow-blue-500/10 border border-blue-100 ring-1 ring-blue-500/5' 
-                      : 'text-slate-600 hover:bg-white hover:shadow-lg hover:shadow-slate-200/50 border border-transparent'
+                      ? 'bg-blue-50 text-primary'
+                      : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  {selectedSlug === p.slug && (
-                    <motion.div 
-                      layoutId="active-indicator"
-                      className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary"
-                    />
-                  )}
-                  <div className="flex flex-col gap-0.5">
-                    <span className={`font-bold text-sm tracking-tight ${selectedSlug === p.slug ? 'text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                      selectedSlug === p.slug ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      <span className="material-symbols-outlined text-lg">description</span>
+                    </span>
+                    <span className="min-w-0">
+                    <span className={`block font-semibold text-sm truncate ${selectedSlug === p.slug ? 'text-slate-950' : 'text-slate-700'}`}>
                       {p.title}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400">/{p.slug}</span>
+                    <span className="block text-xs text-slate-400 truncate">{p.slug}</span>
+                    </span>
                   </div>
-                  <span className={`material-symbols-outlined text-xl transition-all duration-300 ${selectedSlug === p.slug ? 'text-primary scale-110' : 'text-slate-300 group-hover:text-slate-400 group-hover:translate-x-1'}`}>
-                    {selectedSlug === p.slug ? 'auto_awesome' : 'chevron_right'}
+                  <span className={`material-symbols-outlined text-lg ${selectedSlug === p.slug ? 'text-primary' : 'text-slate-300'}`}>
+                    chevron_right
                   </span>
                 </motion.button>
               ))}
             </nav>
-
-            <div className="p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative group">
-              <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-              <h4 className="text-xs font-black uppercase tracking-widest mb-2 opacity-60">Dica Pro</h4>
-              <p className="text-[11px] leading-relaxed font-medium opacity-90">
-                Use nomes de ícones do <a href="https://fonts.google.com/icons" target="_blank" rel="noreferrer" className="underline decoration-primary underline-offset-4 hover:text-primary transition-colors">Material Symbols</a> para personalizar seus blocos em tempo real.
-              </p>
-            </div>
           </div>
         </aside>
 
         {/* Main Content - Blocks Editor */}
         <main className="lg:col-span-9">
           {!selectedPage ? (
-            <div className="bg-white rounded-[3rem] border border-slate-200 shadow-sm p-20 flex flex-col items-center justify-center text-center h-full min-h-[500px]">
-              <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mb-6 rotate-12">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 flex flex-col items-center justify-center text-center min-h-[420px]">
+              <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-5">
                 <span className="material-symbols-outlined text-primary text-4xl">edit_document</span>
               </div>
               <h3 className="text-2xl font-display font-black text-slate-900 mb-3 tracking-tight">Selecione uma Página</h3>
@@ -253,28 +281,26 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
               key={selectedPage.slug}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-8"
+              className="space-y-6"
             >
-              <div className="bg-white rounded-[3rem] border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-5 py-5 sm:px-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full">Página Ativa</span>
-                      <span className="text-[10px] font-mono text-slate-400">ID: {selectedPage.slug.toUpperCase()}</span>
-                    </div>
-                    <h2 className="text-3xl font-display font-black text-slate-900 tracking-tight">{selectedPage.title}</h2>
-                    <p className="text-slate-500 text-sm font-medium mt-1">Configurações e blocos da rota <code className="bg-slate-100 px-2 py-0.5 rounded text-primary">/{selectedPage.slug}</code></p>
+                    <h2 className="text-xl font-display font-bold text-slate-950">{selectedPage.title}</h2>
+                    <p className="text-slate-500 text-sm mt-1">Edite os blocos na ordem em que aparecem no site.</p>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button className="p-3 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
-                      <span className="material-symbols-outlined">visibility</span>
-                    </button>
-                    <button className="p-3 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 transition-all shadow-sm">
-                      <span className="material-symbols-outlined">settings</span>
-                    </button>
+                  <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg ${
+                    hasChanges ? 'text-amber-700 bg-amber-50' : 'text-emerald-700 bg-emerald-50'
+                  }`}>
+                    <span className="material-symbols-outlined text-base">
+                      {hasChanges ? 'edit' : 'check_circle'}
+                    </span>
+                    {hasChanges
+                      ? `${changedBlocksCount} ${changedBlocksCount === 1 ? 'bloco alterado' : 'blocos alterados'}`
+                      : 'Conteúdo publicado'}
                   </div>
                 </div>
-                <div className="p-10">
+                <div className="p-4 sm:p-6 bg-slate-50/60">
                   <AdminPageEditor 
                     initialBlocks={editedBlocks} 
                     slug={selectedPage.slug} 
@@ -293,16 +319,18 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-4"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-3xl px-4"
         >
-          <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-4 shadow-2xl flex items-center justify-between gap-8">
+          <div className="bg-slate-950 border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3 sm:gap-6">
             <div className="flex items-center gap-4 pl-4">
               <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
                 <span className="material-symbols-outlined text-primary">pending_actions</span>
               </div>
               <div>
                 <h4 className="text-white font-bold text-sm tracking-tight">{selectedPage?.title}</h4>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Alterações não publicadas</p>
+                <p className="text-slate-400 text-xs">
+                  {changedBlocksCount} {changedBlocksCount === 1 ? 'bloco alterado' : 'blocos alterados'}
+                </p>
               </div>
             </div>
 
@@ -310,14 +338,14 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
               <button 
                 onClick={handleDiscard}
                 disabled={isSaving}
-                className="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+                className="px-3 sm:px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
               >
                 Descartar
               </button>
               <button 
                 onClick={handlePublish}
                 disabled={isSaving}
-                className="bg-primary text-white px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
+                className="bg-primary text-white px-4 sm:px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
               >
                 {isSaving ? (
                   <><span className="material-symbols-outlined animate-spin text-sm">progress_activity</span> Publicando...</>
@@ -335,10 +363,32 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] bg-emerald-500 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 font-bold"
+          className="fixed top-24 right-4 sm:right-8 z-[100] bg-emerald-600 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 font-semibold"
         >
           <span className="material-symbols-outlined">check_circle</span>
           Alterações publicadas com sucesso!
+        </motion.div>
+      )}
+      {saveError && (
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="fixed top-24 right-4 sm:right-8 z-[100] max-w-md bg-red-600 text-white p-4 rounded-xl shadow-2xl flex items-start gap-3"
+          role="alert"
+        >
+          <span className="material-symbols-outlined">error</span>
+          <div className="flex-1">
+            <p className="font-semibold">Não foi possível publicar</p>
+            <p className="text-sm text-red-100 mt-1">{saveError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveError(null)}
+            className="text-red-100 hover:text-white"
+            aria-label="Fechar mensagem"
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
         </motion.div>
       )}
     </div>

@@ -43,7 +43,7 @@ export default function ExportCsvButton({ leads }: { leads: any[] }) {
   return (
     <button 
       onClick={handleExport}
-      className="bg-white text-primary border border-slate-200 px-6 py-2.5 rounded-full font-medium hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
+      className="bg-white text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-primary hover:border-primary/30 transition-colors flex items-center gap-2"
     >
       <span className="material-symbols-outlined">download</span>
       Exportar CSV

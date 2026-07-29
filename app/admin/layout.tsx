@@ -13,6 +13,7 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -51,13 +52,13 @@ export default function AdminLayout({
       title: 'GESTÃO',
       items: [
         { label: 'Dashboard', href: '/admin', icon: 'dashboard' },
-        { label: 'Leads Qualificados', href: '/admin/leads', icon: 'group' },
+        { label: 'Leads', href: '/admin/leads', icon: 'group' },
       ]
     },
     {
       title: 'CONTEÚDO',
       items: [
-        { label: 'Páginas (CMS)', href: '/admin/pages', icon: 'description' },
+        { label: 'Páginas do site', href: '/admin/pages', icon: 'web' },
         { label: 'Depoimentos', href: '/admin/depoimentos', icon: 'format_quote' },
       ]
     },
@@ -69,70 +70,142 @@ export default function AdminLayout({
     }
   ];
 
-  return (
-    <div className="flex h-screen bg-[#fcfcfc] text-slate-900">
-      {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col shadow-sm z-20">
-        <div className="p-8 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-white text-2xl">insights</span>
+  const currentItem = navGroups
+    .flatMap(group => group.items)
+    .find(item => item.href === '/admin'
+      ? pathname === item.href
+      : pathname.startsWith(item.href));
+
+  const sidebar = (
+    <>
+      <div className="h-20 px-6 flex items-center justify-between border-b border-white/10">
+        <Link href="/admin" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3" aria-label="Ir para o início do painel">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/25">
+            <span className="material-symbols-outlined text-white text-2xl">insights</span>
+          </div>
+          <div>
+            <span className="block font-display font-bold text-lg text-white tracking-tight">AdvR</span>
+            <span className="block text-[10px] font-semibold text-slate-400 uppercase tracking-[0.16em]">Painel administrativo</span>
+          </div>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden w-10 h-10 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center"
+          aria-label="Fechar menu"
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <nav className="flex-1 px-4 py-6 space-y-7 overflow-y-auto" aria-label="Navegação administrativa">
+        {navGroups.map(group => (
+          <div key={group.title}>
+            <h3 className="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.18em]">
+              {group.title}
+            </h3>
+            <div className="space-y-1">
+              {group.items.map(item => {
+                const isActive = item.href === '/admin'
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                      isActive
+                        ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                        : 'text-slate-400 hover:bg-white/8 hover:text-white'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[21px]">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
-            <span className="font-display font-bold text-xl text-slate-900 tracking-tight">AdvR Admin</span>
+          </div>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t border-white/10">
+        <div className="flex items-center gap-3 px-3 py-3 mb-2">
+          <div className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center">
+            <span className="material-symbols-outlined text-xl">person</span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-white">Administrador</p>
+            <p className="text-xs text-slate-500 truncate">Sessão protegida</p>
           </div>
         </div>
-        
-        <nav className="flex-1 p-6 space-y-8 overflow-y-auto">
-          {navGroups.map((group) => (
-            <div key={group.title} className="space-y-3">
-              <h3 className="px-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                {group.title}
-              </h3>
-              <div className="space-y-1">
-                {group.items.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link 
-                      key={item.href}
-                      href={item.href} 
-                      className={`flex items-center gap-4 px-5 py-3 rounded-xl font-medium transition-all text-sm tracking-wide group relative ${
-                        isActive 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
-                    >
-                      {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-                      )}
-                      <span className={`material-symbols-outlined text-xl transition-colors ${isActive ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600'}`}>
-                        {item.icon}
-                      </span>
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-        
-        <div className="p-6 border-t border-slate-100">
-          <button 
-            onClick={handleLogout} 
-            className="w-full flex items-center gap-4 px-5 py-3 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-xl font-medium transition-all text-sm tracking-wide group"
-          >
-            <span className="material-symbols-outlined text-xl text-slate-400 group-hover:text-red-500">logout</span>
-            Sair do Sistema
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl font-semibold transition-colors text-sm"
+        >
+          <span className="material-symbols-outlined text-xl">logout</span>
+          Sair
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#f5f7fb] text-slate-900 lg:flex">
+      {sidebarOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-slate-950/55 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Fechar menu"
+        />
+      )}
+
+      <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-slate-950 flex flex-col transition-transform duration-200 lg:translate-x-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        {sidebar}
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-12 relative">
-        <div className="max-w-6xl mx-auto pb-24">
-          {children}
-        </div>
-      </main>
+      <div className="min-w-0 flex-1 lg:pl-[280px]">
+        <header className="sticky top-0 z-30 h-20 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden w-10 h-10 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center"
+              aria-label="Abrir menu"
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-slate-400">Painel administrativo</p>
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate">
+                {currentItem?.label || 'Administração'}
+              </h1>
+            </div>
+          </div>
+
+          <Link
+            href="/"
+            target="_blank"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-primary/30 hover:text-primary transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">open_in_new</span>
+            <span className="hidden sm:inline">Ver site</span>
+          </Link>
+        </header>
+
+        <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+          <div className="max-w-[1440px] mx-auto pb-20">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

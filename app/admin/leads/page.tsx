@@ -84,8 +84,15 @@ export default function AdminLeads() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-display font-bold text-slate-900">Leads</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-5 mb-8">
+        <div>
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-primary mb-3">
+            <span className="material-symbols-outlined text-base">group</span>
+            RELACIONAMENTO
+          </div>
+          <h1 className="text-3xl font-display font-bold text-slate-950">Leads</h1>
+          <p className="text-slate-500 mt-2">Encontre contatos, atualize o andamento e consulte cada solicitação.</p>
+        </div>
         <div className="flex gap-4">
           <ExportCsvButton leads={filteredLeads} />
         </div>

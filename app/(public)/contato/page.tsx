@@ -2,6 +2,9 @@ import { getPageBlocks } from '@/lib/db';
 import PageBlocksRenderer from '@/components/PageBlocksRenderer';
 import { Metadata } from 'next';
 
+// Content is managed through the CMS and must reflect published updates.
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Fale Conosco',
   description: 'Nossa equipe de especialistas está pronta para entender seus desafios e propor a melhor solução em engenharia de remuneração.',

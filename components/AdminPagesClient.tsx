@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminPageEditor from '@/components/AdminPageEditor';
 import * as motion from "motion/react-client";
 import { supabase } from '@/lib/db';
@@ -11,13 +12,21 @@ interface PageData {
   blocks: any[];
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] }) {
+  const router = useRouter();
+  const [pages, setPages] = useState<PageData[]>(pagesData);
   const [selectedSlug, setSelectedSlug] = useState<string>(pagesData[0]?.slug || '');
   const [editedBlocks, setEditedBlocks] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const selectedPage = pagesData.find(p => p.slug === selectedSlug);
+  const selectedPage = pages.find(p => p.slug === selectedSlug);
+
+  useEffect(() => {
+    setPages(pagesData);
+  }, [pagesData]);
 
   useEffect(() => {
     if (selectedPage) {
@@ -39,35 +48,119 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
     setIsSaving(true);
     try {
       if (supabase) {
+        let pageId: string | null = null;
+        const blocksToSave = JSON.parse(JSON.stringify(editedBlocks));
+
+        if (blocksToSave.some((block: any) => !UUID_PATTERN.test(block.id || ''))) {
+          const { data: pageRecord, error: pageError } = await supabase
+            .from('pages')
+            .select('id')
+            .eq('slug', selectedPage.slug)
+            .maybeSingle();
+
+          if (pageError) throw pageError;
+          if (!pageRecord) {
+            throw new Error(`A página "${selectedPage.slug}" não foi encontrada no Supabase.`);
+          }
+
+          pageId = pageRecord.id;
+        }
+
         // Update each block that has changed (content or order_index)
-        for (const block of editedBlocks) {
-          const originalBlock = selectedPage.blocks.find(b => b.id === block.id);
+        for (let index = 0; index < blocksToSave.length; index++) {
+          const block = blocksToSave[index];
+          const originalBlock = selectedPage.blocks.find(b =>
+            UUID_PATTERN.test(block.id || '')
+              ? b.id === block.id
+              : b.block_name === block.block_name
+          );
           const contentChanged = JSON.stringify(block.content) !== JSON.stringify(originalBlock?.content);
           const orderChanged = block.order_index !== originalBlock?.order_index;
+          let persistedId = UUID_PATTERN.test(block.id || '') ? block.id : null;
+          let createdNow = false;
+
+          if (!persistedId) {
+            const { data: existingBlock, error: existingBlockError } = await supabase
+              .from('page_blocks')
+              .select('id, order_index')
+              .eq('page_id', pageId)
+              .eq('block_name', block.block_name)
+              .order('order_index')
+              .limit(1)
+              .maybeSingle();
+
+            if (existingBlockError) throw existingBlockError;
+
+            if (existingBlock) {
+              persistedId = existingBlock.id;
+              if (block.order_index == null) {
+                block.order_index = existingBlock.order_index;
+              }
+            } else {
+              const orderIndex = Number.isFinite(block.order_index)
+                ? block.order_index
+                : (index + 1) * 10;
+              const { data: createdBlock, error: createError } = await supabase
+                .from('page_blocks')
+                .insert({
+                  page_id: pageId,
+                  block_name: block.block_name,
+                  content: block.content,
+                  order_index: orderIndex
+                })
+                .select('id, order_index')
+                .single();
+
+              if (createError) throw createError;
+
+              persistedId = createdBlock.id;
+              block.order_index = createdBlock.order_index;
+              createdNow = true;
+            }
+
+            block.id = persistedId;
+            block.page_id = pageId;
+          }
           
-          if (contentChanged || orderChanged) {
-            const { error } = await supabase
+          if (!createdNow && (contentChanged || orderChanged)) {
+            const { data: updatedBlock, error } = await supabase
               .from('page_blocks')
               .update({ 
                 content: block.content,
                 order_index: block.order_index
               })
-              .eq('id', block.id);
+              .eq('id', persistedId)
+              .select('id')
+              .maybeSingle();
             
             if (error) throw error;
+            if (!updatedBlock) {
+              throw new Error(`O Supabase não confirmou a atualização do bloco "${block.block_name}".`);
+            }
           }
         }
+
+        const savedBlocks = JSON.parse(JSON.stringify(blocksToSave));
+
+        // Keep the local comparison baseline in sync without mutating props.
+        setPages(currentPages => currentPages.map(page =>
+          page.slug === selectedPage.slug
+            ? { ...page, blocks: savedBlocks }
+            : page
+        ));
+        setEditedBlocks(savedBlocks);
       }
       
-      // Update local state
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      
-      // Update the original blocks in our local reference to hide the bar
-      selectedPage.blocks = JSON.parse(JSON.stringify(editedBlocks));
+
+      // Fetch fresh server-rendered data so the CMS and public page use the
+      // content that was just persisted.
+      router.refresh();
     } catch (error) {
       console.error('Error publishing changes:', error);
-      alert('Erro ao publicar alterações. Tente novamente.');
+      const message = error instanceof Error ? error.message : 'Erro desconhecido';
+      alert(`Erro ao publicar alterações: ${message}`);
     } finally {
       setIsSaving(false);
     }
@@ -99,11 +192,11 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
           <div className="sticky top-8 space-y-6">
             <div className="flex items-center justify-between px-2">
               <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Páginas Ativas</h2>
-              <span className="text-[10px] font-black text-primary bg-blue-50 px-2 py-0.5 rounded-full">{pagesData.length}</span>
+              <span className="text-[10px] font-black text-primary bg-blue-50 px-2 py-0.5 rounded-full">{pages.length}</span>
             </div>
             
             <nav className="space-y-3">
-              {pagesData.map((p, index) => (
+              {pages.map((p, index) => (
                 <motion.button
                   key={p.slug}
                   initial={{ opacity: 0, x: -10 }}

@@ -24,7 +24,7 @@ export async function getGlobalSettings() {
 
 export async function getPageBlocks(slug: string) {
   if (slug === '/empresa') {
-    return [
+    const fallbackBlocks = [
       {
         block_name: 'hero_section',
         content: {
@@ -118,6 +118,57 @@ export async function getPageBlocks(slug: string) {
         }
       }
     ];
+
+    const normalizedFallbackBlocks = fallbackBlocks.map((block, index) => ({
+      ...block,
+      order_index: (index + 1) * 10
+    }));
+
+    if (supabase) {
+      try {
+        const { data: page } = await supabase
+          .from('pages')
+          .select('id')
+          .eq('slug', slug)
+          .maybeSingle();
+
+        if (page) {
+          const { data: persistedBlocks } = await supabase
+            .from('page_blocks')
+            .select('*')
+            .eq('page_id', page.id)
+            .order('order_index');
+
+          if (persistedBlocks) {
+            const persistedByName = new Map(
+              persistedBlocks.map(block => [block.block_name, block])
+            );
+
+            // Preserve the complete Empresa layout while hydrating every
+            // already-persisted block with its Supabase ID and content.
+            return normalizedFallbackBlocks.map(fallbackBlock => {
+              const persistedBlock = persistedByName.get(fallbackBlock.block_name);
+
+              return persistedBlock
+                ? {
+                    ...fallbackBlock,
+                    ...persistedBlock,
+                    content: persistedBlock.content,
+                    order_index: fallbackBlock.order_index
+                  }
+                : {
+                    ...fallbackBlock,
+                    page_id: page.id
+                  };
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading Empresa blocks:', error);
+      }
+    }
+
+    return normalizedFallbackBlocks;
   }
 
   if (supabase) {

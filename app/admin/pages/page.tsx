@@ -1,6 +1,9 @@
 import { getPageBlocks } from '@/lib/db';
 import AdminPagesClient from '@/components/AdminPagesClient';
 
+// Always load the latest CMS state instead of a build-time snapshot.
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPages() {
   const homeBlocks = (await getPageBlocks('/')) || [];
   const empresaBlocks = (await getPageBlocks('/empresa')) || [];

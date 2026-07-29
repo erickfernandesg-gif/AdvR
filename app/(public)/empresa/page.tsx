@@ -2,6 +2,9 @@ import { getPageBlocks } from '@/lib/db';
 import PageBlocksRenderer from '@/components/PageBlocksRenderer';
 import { Metadata } from 'next';
 
+// Content is managed through the CMS and must reflect published updates.
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Nossa História',
   description: 'Há mais de uma década, a AdvR lidera a transformação digital na gestão de incentivos corporativos e remuneração variável.',

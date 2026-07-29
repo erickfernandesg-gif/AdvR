@@ -59,6 +59,7 @@ export default function AdminLayout({
       title: 'CONTEÚDO',
       items: [
         { label: 'Páginas do site', href: '/admin/pages', icon: 'web' },
+        { label: 'Novidades', href: '/admin/novidades', icon: 'newspaper' },
         { label: 'Depoimentos', href: '/admin/depoimentos', icon: 'format_quote' },
       ]
     },

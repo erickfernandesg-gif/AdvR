@@ -17,7 +17,8 @@ interface Novidade {
   data_publicacao: string | null;
 }
 
-export const revalidate = 60; // Optional: revalidate every 60 seconds
+// Novidades são gerenciadas no painel e devem refletir alterações imediatamente.
+export const dynamic = 'force-dynamic';
 
 export default async function NovidadesPage() {
   // Fetch data from Supabase

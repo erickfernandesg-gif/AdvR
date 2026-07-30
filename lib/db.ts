@@ -377,6 +377,12 @@ function enhancePageBlocks(slug: string, sourceBlocks: ContentBlock[], pageId?: 
       if (replacement?.titles.includes(content.title)) {
         Object.assign(content, replacement.content);
       }
+
+      if (slug === '/contato') {
+        content.primary_button_link = '#formulario';
+        content.secondary_button = '';
+        content.secondary_button_link = '';
+      }
     }
 
     if (
@@ -421,6 +427,10 @@ function enhancePageBlocks(slug: string, sourceBlocks: ContentBlock[], pageId?: 
         form_title: 'Conte seu desafio',
         form_button: 'Enviar solicitação',
       });
+    }
+
+    if (slug === '/contato' && block.block_name === 'contact_section') {
+      content.form_button = String(content.form_button || '').trim() || 'Enviar solicitação';
     }
 
     return {

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/db';
 
-export default function LeadForm({ buttonText }: { buttonText: string }) {
+export default function LeadForm({ buttonText }: { buttonText?: string }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -191,7 +191,7 @@ export default function LeadForm({ buttonText }: { buttonText: string }) {
             Enviando...
           </>
         ) : (
-          buttonText
+          buttonText?.trim() || 'Enviar solicitação'
         )}
       </button>
       

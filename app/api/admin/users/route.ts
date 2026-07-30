@@ -50,25 +50,19 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Perfil de acesso inválido.' }, { status: 400 });
     }
 
-    if (temporaryPassword && temporaryPassword.length < 8) {
+    if (temporaryPassword.length < 8) {
       return Response.json(
         { error: 'A senha temporária deve possuir pelo menos 8 caracteres.' },
         { status: 400 }
       );
     }
 
-    const redirectTo = new URL('/definir-senha', request.nextUrl.origin).toString();
-    const { data, error } = temporaryPassword
-      ? await client.auth.admin.createUser({
-          email,
-          password: temporaryPassword,
-          email_confirm: true,
-          user_metadata: { name },
-        })
-      : await client.auth.admin.inviteUserByEmail(email, {
-          redirectTo,
-          data: { name },
-        });
+    const { data, error } = await client.auth.admin.createUser({
+      email,
+      password: temporaryPassword,
+      email_confirm: true,
+      user_metadata: { name, must_change_password: true },
+    });
     if (error) throw error;
 
     const { error: profileError } = await client.from('admin_profiles').upsert({
@@ -83,15 +77,15 @@ export async function POST(request: NextRequest) {
 
     await client.from('activity_log').insert({
       actor_id: user.id,
-      action: temporaryPassword ? 'admin_user_created' : 'admin_user_invited',
+      action: 'admin_user_created',
       entity_type: 'admin_user',
       entity_id: data.user.id,
-      details: { email, role, access_method: temporaryPassword ? 'temporary_password' : 'invite' },
+      details: { email, role, access_method: 'temporary_password' },
     });
 
     return Response.json({
       success: true,
-      method: temporaryPassword ? 'temporary_password' : 'invite',
+      method: 'temporary_password',
     });
   } catch (error) {
     return adminApiError(error);

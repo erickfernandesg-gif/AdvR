@@ -16,7 +16,7 @@ export default function SetPasswordPage() {
       const { data } = await supabase.auth.getSession();
       setReady(Boolean(data.session));
       if (!data.session) {
-        setError('Este convite é inválido ou expirou. Solicite um novo convite ao administrador.');
+        setError('Faça login com a senha temporária fornecida pelo administrador.');
       }
     };
     checkInvite();
@@ -40,7 +40,10 @@ export default function SetPasswordPage() {
 
     setSaving(true);
     setError('');
-    const { error: updateError } = await supabase.auth.updateUser({ password });
+    const { error: updateError } = await supabase.auth.updateUser({
+      password,
+      data: { must_change_password: false },
+    });
     if (updateError) {
       setError(updateError.message);
       setSaving(false);
@@ -58,7 +61,7 @@ export default function SetPasswordPage() {
             <span className="material-symbols-outlined">lock_reset</span>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-primary">Convite AdvR</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Primeiro acesso AdvR</p>
             <h1 className="text-2xl font-display font-bold text-slate-950">Defina sua senha</h1>
           </div>
         </div>

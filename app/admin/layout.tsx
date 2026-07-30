@@ -23,6 +23,11 @@ export default function AdminLayout({
         if (!session) {
           router.push('/login');
         } else {
+          if (session.user.user_metadata?.must_change_password) {
+            router.push('/definir-senha');
+            return;
+          }
+
           const { data: profile } = await supabase
             .from('admin_profiles')
             .select('name, role, active')

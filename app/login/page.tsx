@@ -19,14 +19,18 @@ export default function LoginPage() {
 
     try {
       if (supabase) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
         
-        router.push('/admin');
+        router.push(
+          data.user.user_metadata?.must_change_password
+            ? '/definir-senha'
+            : '/admin'
+        );
         router.refresh();
       } else {
         // Simulate login

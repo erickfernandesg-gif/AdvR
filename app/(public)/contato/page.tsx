@@ -1,14 +1,14 @@
 import { getPageBlocks } from '@/lib/db';
 import PageBlocksRenderer from '@/components/PageBlocksRenderer';
-import { Metadata } from 'next';
+import { buildPageMetadata } from '@/lib/page-seo';
 
 // Content is managed through the CMS and must reflect published updates.
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
+export const generateMetadata = () => buildPageMetadata('/contato', {
   title: 'Fale Conosco',
   description: 'Nossa equipe de especialistas está pronta para entender seus desafios e propor a melhor solução em engenharia de remuneração.',
-};
+});
 
 export default async function Contato() {
   const blocks = await getPageBlocks('/contato');

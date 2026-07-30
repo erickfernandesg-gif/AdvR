@@ -1,9 +1,487 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fcrdgnwpjtpvhcvxzswp.supabase.co';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || 'sb_publishable_rBtJizSXa1MeJlzrbtDqMw_vDUDAq2H';
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+  'sb_publishable_rBtJizSXa1MeJlzrbtDqMw_vDUDAq2H';
 
 export const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+
+type ContentBlock = {
+  id?: string;
+  page_id?: string;
+  block_name: string;
+  order_index?: number;
+  content: Record<string, any>;
+};
+
+const PAGE_BLOCK_PRIORITY: Record<string, string[]> = {
+  '/': [
+    'hero_section',
+    'social_proof',
+    'value_proposition',
+    'solucoes_bento',
+    'audience_section',
+    'data_belt',
+    'highlight_card',
+    'roi_calculator',
+    'case_study',
+    'testimonials',
+    'video_section',
+    'blog_preview',
+    'blog_highlight',
+    'cta_section',
+  ],
+  '/solucoes': ['hero_section', 'value_proposition', 'pipeline_visual', 'technical_focus', 'cta_section'],
+  '/portal': ['hero_section', 'value_proposition', 'portal_features', 'solucoes_bento', 'cta_section'],
+  '/blog': ['hero_section', 'blog_highlight', 'blog_list', 'cta_section'],
+  '/empresa': ['hero_section', 'social_proof', 'timeline_modern', 'solucoes_bento', 'culture_section', 'contact_section'],
+};
+
+const HOME_DEFAULT_ORDER: Record<string, number> = {
+  hero_section: 10,
+  social_proof: 20,
+  value_proposition: 30,
+  solucoes_bento: 40,
+  audience_section: 50,
+  data_belt: 60,
+  highlight_card: 70,
+  case_study: 80,
+  testimonials: 85,
+  video_section: 90,
+  blog_preview: 100,
+  cta_section: 110,
+};
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const HOME_SOLUTIONS_CONTENT = {
+  eyebrow: 'Soluções AdvR',
+  title: 'Tecnologia e serviços para toda a jornada de remuneração variável.',
+  subtitle: 'Escolha os componentes adequados ao momento e à complexidade da sua operação.',
+  cards: [
+    {
+      id: 'colossus',
+      icon: 'calculate',
+      title: 'Motor Colossus',
+      description: 'Estruture regras e cálculos complexos com mais controle, rastreabilidade e segurança.',
+    },
+    {
+      id: 'portal',
+      icon: 'dashboard',
+      title: 'Portal de Incentivos',
+      description: 'Aproxime metas, extratos, resultados e comunicações de gestores e participantes.',
+    },
+    {
+      id: 'bi',
+      icon: 'analytics',
+      title: 'Dados e BI',
+      description: 'Transforme informações de remuneração em visões úteis para acompanhamento e decisão.',
+    },
+    {
+      id: 'consultoria',
+      icon: 'support_agent',
+      title: 'Consultoria especializada',
+      description: 'Conte com experiência de negócio para desenhar, revisar e evoluir seus processos.',
+    },
+  ],
+};
+
+const PAGE_ENHANCEMENTS: Record<string, ContentBlock[]> = {
+  '/': [
+    {
+      id: 'injected-value-proposition-home',
+      block_name: 'value_proposition',
+      order_index: 30,
+      content: {
+        eyebrow: 'Da complexidade ao controle',
+        title: 'Sua operação de remuneração variável pode ser mais simples.',
+        subtitle: 'A AdvR conecta regras, dados e pessoas para reduzir esforço operacional e dar mais clareza a cada ciclo.',
+        items: [
+          {
+            icon: 'table_view',
+            title: 'Menos trabalho manual',
+            description: 'Centralize regras e substitua controles dispersos por um processo estruturado.',
+          },
+          {
+            icon: 'visibility',
+            title: 'Mais transparência',
+            description: 'Dê visibilidade para gestores e participantes sem perder governança.',
+          },
+          {
+            icon: 'verified_user',
+            title: 'Mais segurança',
+            description: 'Mantenha histórico, critérios e aprovações organizados para cada fechamento.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'injected-audience-home',
+      block_name: 'audience_section',
+      order_index: 50,
+      content: {
+        eyebrow: 'Uma visão para cada área',
+        title: 'Conecte quem define, calcula, aprova e acompanha os resultados.',
+        subtitle: 'A mesma operação precisa responder às necessidades de diferentes áreas sem perder consistência.',
+        items: [
+          {
+            icon: 'groups',
+            title: 'RH e Remuneração',
+            description: 'Estruture políticas, critérios e comunicação com mais clareza.',
+          },
+          {
+            icon: 'account_balance',
+            title: 'Financeiro',
+            description: 'Ganhe previsibilidade, rastreabilidade e segurança nas aprovações.',
+          },
+          {
+            icon: 'monitoring',
+            title: 'Vendas e Operações',
+            description: 'Aproxime metas e resultados de gestores e participantes.',
+          },
+          {
+            icon: 'database',
+            title: 'Tecnologia e Dados',
+            description: 'Organize integrações e reduza fluxos manuais entre sistemas.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'injected-case-study-home',
+      block_name: 'case_study',
+      order_index: 80,
+      content: {
+        eyebrow: 'Um cenário comum nas empresas',
+        title: 'De controles dispersos a uma operação mais previsível.',
+        subtitle: 'Um exemplo de como a abordagem AdvR organiza as partes mais críticas de um ciclo de remuneração variável.',
+        problem_title: 'O desafio',
+        problem: 'Regras complexas, dados em diferentes fontes e alto esforço de conferência a cada fechamento.',
+        solution_title: 'A abordagem',
+        solution: 'Centralização das regras, estruturação do fluxo de dados e definição clara das etapas de aprovação.',
+        result_title: 'O resultado esperado',
+        result: 'Mais controle operacional, rastreabilidade e transparência para gestores e participantes.',
+        button_text: 'Conversar sobre meu cenário',
+        button_link: '/contato',
+      },
+    },
+    {
+      id: 'injected-blog-preview-home',
+      block_name: 'blog_preview',
+      order_index: 100,
+      content: {
+        eyebrow: 'Conteúdos e novidades',
+        title: 'Conhecimento para evoluir sua gestão de resultados.',
+        subtitle: 'Acompanhe análises, boas práticas e atualizações da AdvR.',
+        button_text: 'Ver todos os insights',
+      },
+    },
+    {
+      id: 'injected-cta-home',
+      block_name: 'cta_section',
+      order_index: 110,
+      content: {
+        eyebrow: 'Converse com a AdvR',
+        title: 'Quer simplificar seu próximo ciclo de remuneração variável?',
+        subtitle: 'Conte como funciona sua operação hoje e veja como podemos estruturar uma solução adequada ao seu cenário.',
+        button_text: 'Agendar demonstração',
+        button_link: '/contato',
+        secondary_text: 'Conhecer as soluções',
+        secondary_link: '/solucoes',
+      },
+    },
+  ],
+  '/solucoes': [
+    {
+      id: 'injected-value-proposition-solutions',
+      block_name: 'value_proposition',
+      order_index: 20,
+      content: {
+        eyebrow: 'Resultados para o negócio',
+        title: 'Tecnologia que acompanha a complexidade da sua operação.',
+        subtitle: 'Estruture cálculos, aprovações e comunicação em uma jornada mais previsível para todas as áreas envolvidas.',
+        items: [
+          {
+            icon: 'calculate',
+            title: 'Cálculos estruturados',
+            description: 'Organize diferentes regras, pesos, indicadores e ciclos em um fluxo único.',
+          },
+          {
+            icon: 'account_tree',
+            title: 'Integração de dados',
+            description: 'Conecte as informações necessárias para diminuir retrabalho e inconsistências.',
+          },
+          {
+            icon: 'fact_check',
+            title: 'Governança do ciclo',
+            description: 'Acompanhe aprovações, versões e entregas com mais rastreabilidade.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'injected-cta-solutions',
+      block_name: 'cta_section',
+      order_index: 90,
+      content: {
+        eyebrow: 'Veja na prática',
+        title: 'Vamos entender as regras e os desafios da sua operação.',
+        subtitle: 'Agende uma conversa para conhecer a abordagem da AdvR e avaliar o melhor caminho para sua empresa.',
+        button_text: 'Agendar demonstração',
+        button_link: '/contato',
+        secondary_text: 'Conhecer o Portal',
+        secondary_link: '/portal',
+      },
+    },
+  ],
+  '/portal': [
+    {
+      id: 'injected-value-proposition-portal',
+      block_name: 'value_proposition',
+      order_index: 20,
+      content: {
+        eyebrow: 'Experiência para gestores e participantes',
+        title: 'Informação acessível durante todo o ciclo.',
+        subtitle: 'O Portal aproxima as pessoas das metas, resultados e comunicações importantes sem abrir mão de controle.',
+        items: [
+          {
+            icon: 'monitoring',
+            title: 'Acompanhamento',
+            description: 'Consulte indicadores, resultados e informações relevantes em um só lugar.',
+          },
+          {
+            icon: 'devices',
+            title: 'Acesso simplificado',
+            description: 'Uma experiência preparada para diferentes dispositivos e perfis de usuário.',
+          },
+          {
+            icon: 'campaign',
+            title: 'Comunicação clara',
+            description: 'Compartilhe avisos e conteúdos importantes com a audiência certa.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'injected-cta-portal',
+      block_name: 'cta_section',
+      order_index: 90,
+      content: {
+        eyebrow: 'Conheça o Portal',
+        title: 'Mostre resultados com mais clareza para sua equipe.',
+        subtitle: 'Agende uma demonstração e veja como o Portal pode apoiar a experiência dos participantes.',
+        button_text: 'Agendar demonstração',
+        button_link: '/contato',
+        secondary_text: 'Ver todas as soluções',
+        secondary_link: '/solucoes',
+      },
+    },
+  ],
+  '/blog': [
+    {
+      id: 'injected-cta-blog',
+      block_name: 'cta_section',
+      order_index: 90,
+      content: {
+        eyebrow: 'Continue acompanhando',
+        title: 'Veja também as novidades da AdvR.',
+        subtitle: 'Acompanhe publicações, eventos e atualizações compartilhadas em nossos canais.',
+        button_text: 'Ver novidades',
+        button_link: '/novidades',
+        secondary_text: 'Falar com um especialista',
+        secondary_link: '/contato',
+      },
+    },
+  ],
+};
+
+function enhancePageBlocks(slug: string, sourceBlocks: ContentBlock[], pageId?: string) {
+  let blocks = sourceBlocks.map((block) => {
+    const content = { ...block.content };
+
+    if (block.block_name === 'hero_section') {
+      const legacyHeroCopy: Record<string, { titles: string[]; content: Record<string, any> }> = {
+        '/': {
+          titles: ['Engenharia de Remuneração Variável para a Elite Corporativa.'],
+          content: {
+            eyebrow: 'Remuneração variável com clareza e controle',
+            title: 'Remuneração variável sem planilhas, erros ou atrasos.',
+            subtitle: 'Estruture cálculos complexos, dê transparência ao time e conduza cada ciclo com mais segurança.',
+            primary_button: 'Agendar demonstração',
+            primary_button_link: '/contato',
+            secondary_button: 'Conhecer soluções',
+            secondary_button_link: '/solucoes',
+            image_url: '',
+          },
+        },
+        '/empresa': {
+          titles: ['CREDIBILIDADE E CONFIANÇA É O QUE NOS MOVE HÁ 30 ANOS'],
+          content: {
+            eyebrow: 'Experiência que evolui com o mercado',
+            title: 'Há mais de 30 anos, transformamos complexidade em resultados.',
+            subtitle: 'Unimos conhecimento em remuneração variável, tecnologia e atendimento próximo para apoiar operações que exigem confiança.',
+            primary_button: 'Falar com um especialista',
+            primary_button_link: '/contato',
+            secondary_button: 'Conhecer soluções',
+            secondary_button_link: '/solucoes',
+            image_url: '',
+          },
+        },
+        '/solucoes': {
+          titles: ['O Motor Colossus. Tecnologia de Elite para Remuneração.'],
+          content: {
+            eyebrow: 'Soluções AdvR',
+            title: 'Tecnologia e conhecimento para cada etapa da remuneração variável.',
+            subtitle: 'Conecte dados, regras, aprovações e comunicação em uma operação mais clara e previsível.',
+            primary_button: 'Agendar demonstração',
+            primary_button_link: '/contato',
+            secondary_button: 'Entender o processo',
+            secondary_button_link: '#processo',
+            image_url: '',
+          },
+        },
+        '/portal': {
+          titles: ['Portal de Incentivos', 'Portal de Incentivos: Plataforma Inteligente'],
+          content: {
+            eyebrow: 'Portal de Incentivos',
+            title: 'Metas e resultados mais próximos de quem faz acontecer.',
+            subtitle: 'Centralize extratos, indicadores, conteúdos e comunicações em uma experiência simples para gestores e participantes.',
+            primary_button: 'Agendar demonstração',
+            primary_button_link: '/contato',
+            secondary_button: 'Ver recursos',
+            secondary_button_link: '#recursos',
+            image_url: '',
+            compact: true,
+          },
+        },
+        '/blog': {
+          titles: ['Insights de Elite', 'Insights & Estratégia. O Futuro da Remuneração.'],
+          content: {
+            eyebrow: 'Conhecimento AdvR',
+            title: 'Ideias práticas para evoluir sua gestão de resultados.',
+            subtitle: 'Conteúdos sobre remuneração variável, tecnologia, governança e engajamento.',
+            primary_button: 'Ver artigos',
+            primary_button_link: '#artigos',
+            secondary_button: 'Ver novidades',
+            secondary_button_link: '/novidades',
+            image_url: '',
+            compact: true,
+          },
+        },
+      };
+
+      const replacement = legacyHeroCopy[slug];
+      if (replacement?.titles.includes(content.title)) {
+        Object.assign(content, replacement.content);
+      }
+    }
+
+    if (
+      slug === '/' &&
+      block.block_name === 'highlight_card' &&
+      (content.stat === '24h' || String(content.title || '').includes('24 Horas'))
+    ) {
+      Object.assign(content, {
+        eyebrow: 'Experiência aplicada à operação',
+        title: 'Conhecimento de negócio e tecnologia trabalhando no mesmo processo.',
+        description: 'A AdvR combina experiência em remuneração variável com uma estrutura tecnológica preparada para regras, dados e ciclos complexos.',
+        stat: '30+',
+        stat_label: 'anos acompanhando a evolução da remuneração variável',
+      });
+    }
+
+    if (
+      slug === '/' &&
+      block.block_name === 'solucoes_bento' &&
+      (!Array.isArray(content.cards) || content.cards.length === 0)
+    ) {
+      Object.assign(content, HOME_SOLUTIONS_CONTENT);
+      delete content.companies;
+    }
+
+    if (
+      slug === '/' &&
+      block.block_name === 'video_section' &&
+      String(content.title || '').toUpperCase().includes('ENTENDA O QUE JÁ FIZEMOS')
+    ) {
+      content.title = 'Veja como a AdvR transforma operações complexas';
+    }
+
+    if (
+      slug === '/contato' &&
+      block.block_name === 'contact_section' &&
+      ['Fale Conosco. Vamos Transformar seus Resultados.', 'Agende uma Conversa Estratégica.'].includes(content.title)
+    ) {
+      Object.assign(content, {
+        title: 'Vamos entender sua operação.',
+        subtitle: 'Conte como funciona seu processo de remuneração variável e quais desafios você precisa resolver.',
+        form_title: 'Conte seu desafio',
+        form_button: 'Enviar solicitação',
+      });
+    }
+
+    return {
+      ...block,
+      id: block.id || `fallback-${slug.replace(/\W+/g, '-') || 'home'}-${block.block_name}`,
+      content,
+    };
+  });
+
+  if (slug === '/') {
+    // Remove the legacy duplicate created when company data was saved into
+    // a timeline block. The valid social_proof block and its logos stay intact.
+    blocks = blocks.filter((block) => !(
+      block.block_name === 'timeline_modern' &&
+      Array.isArray(block.content.companies) &&
+      !Array.isArray(block.content.milestones)
+    ));
+
+    // Page sections are singletons. Keep the earliest persisted occurrence.
+    const seen = new Set<string>();
+    blocks = blocks
+      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+      .filter((block) => {
+        if (seen.has(block.block_name)) return false;
+        seen.add(block.block_name);
+        return true;
+      });
+  }
+
+  for (const enhancement of PAGE_ENHANCEMENTS[slug] || []) {
+    if (!blocks.some((block) => block.block_name === enhancement.block_name)) {
+      blocks.push({
+        ...enhancement,
+        id: enhancement.id || `injected-${slug.replace(/\W+/g, '-') || 'home'}-${enhancement.block_name}`,
+        page_id: pageId,
+        order_index: enhancement.order_index ?? 999,
+      });
+    }
+  }
+
+  if (slug === '/' && blocks.some((block) => !UUID_PATTERN.test(block.id || ''))) {
+    blocks = blocks.map((block) => ({
+      ...block,
+      order_index: HOME_DEFAULT_ORDER[block.block_name] ?? block.order_index ?? 999,
+    }));
+  }
+
+  const priority = PAGE_BLOCK_PRIORITY[slug];
+  if (!priority) return blocks;
+
+  // Persisted order_index is the source of truth so rearranging blocks in
+  // /admin/pages is reflected publicly. Priority is only a fallback for
+  // legacy or non-persisted blocks without an order.
+  return blocks.sort((a, b) => {
+    const aIndex = priority.indexOf(a.block_name);
+    const bIndex = priority.indexOf(b.block_name);
+    const aFallback = aIndex === -1 ? 999 : (aIndex + 1) * 10;
+    const bFallback = bIndex === -1 ? 999 : (bIndex + 1) * 10;
+    return (a.order_index ?? aFallback) - (b.order_index ?? bFallback);
+  });
+}
 
 export async function getGlobalSettings() {
   if (supabase) {
@@ -19,6 +497,34 @@ export async function getGlobalSettings() {
     custom_script_head: '',
     linkedin_url: '',
     instagram_url: ''
+  };
+}
+
+export async function getPageMetadata(slug: string) {
+  if (supabase) {
+    const { data } = await supabase
+      .from('pages')
+      .select('id, meta_title, meta_description, og_image_url, no_index')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (data) {
+      return {
+        id: data.id,
+        meta_title: data.meta_title || '',
+        meta_description: data.meta_description || '',
+        og_image_url: data.og_image_url || '',
+        no_index: Boolean(data.no_index),
+      };
+    }
+  }
+
+  return {
+    id: '',
+    meta_title: '',
+    meta_description: '',
+    og_image_url: '',
+    no_index: false,
   };
 }
 
@@ -146,7 +652,7 @@ export async function getPageBlocks(slug: string) {
 
             // Preserve the complete Empresa layout while hydrating every
             // already-persisted block with its Supabase ID and content.
-            return normalizedFallbackBlocks.map(fallbackBlock => {
+            return enhancePageBlocks(slug, normalizedFallbackBlocks.map(fallbackBlock => {
               const persistedBlock = persistedByName.get(fallbackBlock.block_name);
 
               return persistedBlock
@@ -160,7 +666,7 @@ export async function getPageBlocks(slug: string) {
                     ...fallbackBlock,
                     page_id: page.id
                   };
-            });
+            }), page.id);
           }
         }
       } catch (error) {
@@ -168,7 +674,7 @@ export async function getPageBlocks(slug: string) {
       }
     }
 
-    return normalizedFallbackBlocks;
+    return enhancePageBlocks(slug, normalizedFallbackBlocks);
   }
 
   if (supabase) {
@@ -211,14 +717,11 @@ export async function getPageBlocks(slug: string) {
 
         // Inject testimonials if missing for /
         if (slug === '/' && !blocks.find(b => b.block_name === 'testimonials')) {
-          const targetBlock = blocks.find(b => b.block_name === 'expertise' || b.block_name === 'social_proof');
-          const orderIndex = targetBlock ? targetBlock.order_index + 0.5 : 85;
-
           blocks.push({
             id: 'injected-testimonials',
             page_id: page.id,
             block_name: 'testimonials',
-            order_index: orderIndex,
+            order_index: 85,
             content: {
               title: 'O que dizem nossos clientes',
               subtitle: 'Histórias reais de empresas que transformaram sua gestão de remuneração variável com a AdvR.'
@@ -229,7 +732,7 @@ export async function getPageBlocks(slug: string) {
           blocks.sort((a, b) => a.order_index - b.order_index);
         }
 
-        return blocks;
+        return enhancePageBlocks(slug, blocks, page.id);
       }
     }
   }

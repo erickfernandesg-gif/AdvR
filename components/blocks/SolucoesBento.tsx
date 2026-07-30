@@ -9,6 +9,7 @@ export default function SolucoesBento({ content }: { content: BentoContent }) {
     <section id="solucoes" className="py-24 bg-secondary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
+          {content.eyebrow && <p className="section-eyebrow mb-4">{content.eyebrow}</p>}
           <h2 className="text-3xl lg:text-5xl font-display font-extrabold text-foreground mb-4 tracking-tight">{content.title}</h2>
           <p className="text-muted-foreground font-light text-lg">{content.subtitle}</p>
         </div>

@@ -16,10 +16,18 @@ export default function LeadStatusSelect({ leadId, initialStatus }: { leadId: st
       if (supabase) {
         const { error } = await supabase
           .from('leads')
-          .update({ status: newStatus })
+          .update({ status: newStatus, updated_at: new Date().toISOString() })
           .eq('id', leadId);
           
         if (error) throw error;
+
+        const { data: sessionData } = await supabase.auth.getSession();
+        await supabase.from('lead_activities').insert({
+          lead_id: leadId,
+          activity_type: 'status',
+          content: `Status alterado de "${status}" para "${newStatus}".`,
+          created_by: sessionData.session?.user.id || null,
+        });
       }
     } catch (error) {
       console.error('Error updating lead status:', error);

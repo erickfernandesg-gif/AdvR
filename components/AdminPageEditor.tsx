@@ -7,6 +7,7 @@ import { supabase } from '@/lib/db';
 const FIELD_LABELS: Record<string, string> = {
   title: 'Título Principal',
   subtitle: 'Subtítulo / Apoio',
+  eyebrow: 'Chamada curta acima do título',
   description: 'Descrição Detalhada',
   primary_button: 'Texto do Botão Principal',
   secondary_button: 'Texto do Botão Secundário',
@@ -14,6 +15,7 @@ const FIELD_LABELS: Record<string, string> = {
   secondary_button_link: 'Link do Botão Secundário',
   image_url: 'URL da Imagem (Link)',
   image_link: 'Link de Destino da Imagem',
+  image_alt: 'Descrição da imagem',
   video_id: 'ID do Vídeo (YouTube)',
   icon: 'Ícone (Material Symbol)',
   tag: 'Etiqueta / Badge',
@@ -40,6 +42,19 @@ const FIELD_LABELS: Record<string, string> = {
   unit: 'Unidade (ex: % ou R$)',
   prefix: 'Prefixo',
   suffix: 'Sufixo',
+  button_text: 'Texto do botão principal',
+  button_link: 'Link do botão principal',
+  secondary_text: 'Texto do botão secundário',
+  secondary_link: 'Link do botão secundário',
+  stat: 'Número ou indicador',
+  stat_label: 'Legenda do indicador',
+  items: 'Itens da seção',
+  problem_title: 'Título do desafio',
+  problem: 'Descrição do desafio',
+  solution_title: 'Título da abordagem',
+  solution: 'Descrição da abordagem',
+  result_title: 'Título do resultado',
+  result: 'Descrição do resultado',
 };
 
 // Mapeamento de Nomes de Blocos
@@ -58,6 +73,13 @@ const BLOCK_LABELS: Record<string, string> = {
   social_proof: 'Empresas e marcas',
   roi_calculator: 'Calculadora de ROI',
   portal_features: 'Recursos do Portal',
+  value_proposition: 'Benefícios para o cliente',
+  highlight_card: 'Destaque de resultado',
+  cta_section: 'Chamada final',
+  audience_section: 'Públicos atendidos',
+  case_study: 'Caso de aplicação',
+  blog_preview: 'Conteúdos recentes',
+  testimonials: 'Depoimentos',
 };
 
 const BLOCK_DESCRIPTIONS: Record<string, string> = {
@@ -75,6 +97,13 @@ const BLOCK_DESCRIPTIONS: Record<string, string> = {
   social_proof: 'Nomes das empresas exibidas na faixa de prova social.',
   roi_calculator: 'Textos e chamada da calculadora de retorno.',
   portal_features: 'Recursos e imagens apresentados na página do portal.',
+  value_proposition: 'Apresenta os principais problemas resolvidos e benefícios para o cliente.',
+  highlight_card: 'Dá destaque a uma mensagem, indicador ou resultado importante.',
+  cta_section: 'Chamada final que direciona o visitante para o próximo passo.',
+  audience_section: 'Áreas e perfis que se beneficiam das soluções da AdvR.',
+  case_study: 'Apresenta um desafio, a abordagem adotada e o resultado esperado.',
+  blog_preview: 'Exibe os artigos mais recentes e direciona para a área de Insights.',
+  testimonials: 'Depoimentos reais cadastrados na área específica do painel.',
 };
 
 const FIELD_HELP: Record<string, string> = {
@@ -88,6 +117,9 @@ const FIELD_HELP: Record<string, string> = {
   cards: 'Cada item representa um cartão exibido nesta seção.',
   features: 'Cada item representa um benefício ou recurso.',
   steps: 'Organize os passos na ordem em que devem aparecer.',
+  items: 'Mantenha entre três e quatro itens para preservar a leitura e o equilíbrio visual.',
+  button_link: 'Use uma rota interna, como /contato, ou uma URL completa.',
+  secondary_link: 'Use uma rota interna, como /solucoes, ou uma URL completa.',
 };
 
 function IconPreview({ iconName }: { iconName: string }) {

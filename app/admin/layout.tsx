@@ -14,6 +14,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [adminProfile, setAdminProfile] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -22,6 +23,22 @@ export default function AdminLayout({
         if (!session) {
           router.push('/login');
         } else {
+          const { data: profile } = await supabase
+            .from('admin_profiles')
+            .select('name, role, active')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+
+          if (profile && !profile.active) {
+            await supabase.auth.signOut();
+            router.push('/login');
+            return;
+          }
+
+          setAdminProfile({
+            name: profile?.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Administrador',
+            role: profile?.role || 'owner',
+          });
           setLoading(false);
         }
       } else {
@@ -51,22 +68,25 @@ export default function AdminLayout({
     {
       title: 'GESTÃO',
       items: [
-        { label: 'Dashboard', href: '/admin', icon: 'dashboard' },
-        { label: 'Leads', href: '/admin/leads', icon: 'group' },
+        { label: 'Dashboard', href: '/admin', icon: 'dashboard', roles: ['owner', 'editor', 'commercial', 'viewer'] },
+        { label: 'Leads', href: '/admin/leads', icon: 'group', roles: ['owner', 'editor', 'commercial'] },
       ]
     },
     {
       title: 'CONTEÚDO',
       items: [
-        { label: 'Páginas do site', href: '/admin/pages', icon: 'web' },
-        { label: 'Novidades', href: '/admin/novidades', icon: 'newspaper' },
-        { label: 'Depoimentos', href: '/admin/depoimentos', icon: 'format_quote' },
+        { label: 'Páginas do site', href: '/admin/pages', icon: 'web', roles: ['owner', 'editor'] },
+        { label: 'Novidades', href: '/admin/novidades', icon: 'newspaper', roles: ['owner', 'editor'] },
+        { label: 'Depoimentos', href: '/admin/depoimentos', icon: 'format_quote', roles: ['owner', 'editor'] },
+        { label: 'Biblioteca de mídia', href: '/admin/midia', icon: 'perm_media', roles: ['owner', 'editor'] },
       ]
     },
     {
       title: 'SISTEMA',
       items: [
-        { label: 'Configurações', href: '/admin/settings', icon: 'settings' },
+        { label: 'Usuários e acessos', href: '/admin/usuarios', icon: 'admin_panel_settings', roles: ['owner'] },
+        { label: 'Atividades e backup', href: '/admin/ferramentas', icon: 'shield', roles: ['owner', 'editor'] },
+        { label: 'Configurações', href: '/admin/settings', icon: 'settings', roles: ['owner', 'editor'] },
       ]
     }
   ];
@@ -106,7 +126,9 @@ export default function AdminLayout({
               {group.title}
             </h3>
             <div className="space-y-1">
-              {group.items.map(item => {
+              {group.items
+                .filter(item => item.roles.includes(adminProfile?.role || 'owner'))
+                .map(item => {
                 const isActive = item.href === '/admin'
                   ? pathname === item.href
                   : pathname.startsWith(item.href);
@@ -139,8 +161,12 @@ export default function AdminLayout({
             <span className="material-symbols-outlined text-xl">person</span>
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-white">Administrador</p>
-            <p className="text-xs text-slate-500 truncate">Sessão protegida</p>
+            <p className="text-sm font-semibold text-white">{adminProfile?.name || 'Administrador'}</p>
+            <p className="text-xs text-slate-500 truncate">
+              {adminProfile?.role === 'owner' ? 'Proprietário' :
+                adminProfile?.role === 'editor' ? 'Editor de conteúdo' :
+                adminProfile?.role === 'commercial' ? 'Comercial' : 'Somente leitura'}
+            </p>
           </div>
         </div>
         <button

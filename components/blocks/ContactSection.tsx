@@ -9,7 +9,7 @@ export default function ContactSection({ content }: { content: ContactContent })
   const parts = title.split('.');
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-32">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
@@ -26,6 +26,11 @@ export default function ContactSection({ content }: { content: ContactContent })
           <p className="text-xl text-muted-foreground font-light leading-relaxed mb-12">
             {content.subtitle}
           </p>
+
+          <div className="mb-10 inline-flex items-center gap-3 rounded-2xl bg-blue-50 px-5 py-4 text-sm font-semibold text-blue-900">
+            <span className="material-symbols-outlined text-blue-600">schedule</span>
+            Retornamos sua solicitação em até um dia útil.
+          </div>
           
           <div className="space-y-8">
             <div className="glow-card flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
@@ -34,7 +39,9 @@ export default function ContactSection({ content }: { content: ContactContent })
               </div>
               <div>
                 <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">E-mail Corporativo</div>
-                <div className="text-lg font-bold text-foreground">{content.email}</div>
+                <a href={`mailto:${content.email}`} className="text-lg font-bold text-foreground hover:text-primary">
+                  {content.email}
+                </a>
               </div>
             </div>
             <div className="glow-card flex items-center gap-6 p-6 bg-secondary rounded-3xl border border-border">
@@ -82,7 +89,7 @@ export default function ContactSection({ content }: { content: ContactContent })
           transition={{ duration: 0.6, delay: 0.2 }}
           className="lg:col-span-7"
         >
-          <div className="glow-card bg-background p-10 rounded-[3rem] border border-border shadow-2xl relative">
+          <div className="glow-card bg-background p-7 sm:p-10 rounded-3xl border border-border shadow-xl relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 -z-10"></div>
             <h2 className="text-2xl font-display font-bold text-foreground mb-8">{content.form_title}</h2>
             <LeadForm buttonText={content.form_button} />

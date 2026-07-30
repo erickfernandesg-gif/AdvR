@@ -15,6 +15,10 @@ export default function AdminLeads() {
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
+  const [adminProfiles, setAdminProfiles] = useState<any[]>([]);
+  const [leadActivities, setLeadActivities] = useState<any[]>([]);
+  const [savingLead, setSavingLead] = useState(false);
+  const [newNote, setNewNote] = useState('');
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -36,12 +40,67 @@ export default function AdminLeads() {
     setIsDeleting(null);
   };
 
+  const openLead = async (lead: any) => {
+    setSelectedLead({ ...lead });
+    setNewNote('');
+    if (!supabase) return;
+    const { data } = await supabase
+      .from('lead_activities')
+      .select('id, activity_type, content, created_at, created_by')
+      .eq('lead_id', lead.id)
+      .order('created_at', { ascending: false });
+    setLeadActivities(data || []);
+  };
+
+  const saveLeadWorkspace = async () => {
+    if (!supabase || !selectedLead) return;
+    setSavingLead(true);
+    const update = {
+      assigned_to: selectedLead.assigned_to || null,
+      next_contact_at: selectedLead.next_contact_at || null,
+      internal_notes: selectedLead.internal_notes || null,
+      updated_at: new Date().toISOString(),
+    };
+    const { error } = await supabase.from('leads').update(update).eq('id', selectedLead.id);
+    if (!error) {
+      setLeads(current => current.map(lead => lead.id === selectedLead.id ? { ...lead, ...update } : lead));
+    }
+    setSavingLead(false);
+  };
+
+  const addLeadNote = async () => {
+    if (!supabase || !selectedLead || !newNote.trim()) return;
+    setSavingLead(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const { data, error } = await supabase
+      .from('lead_activities')
+      .insert({
+        lead_id: selectedLead.id,
+        activity_type: 'note',
+        content: newNote.trim(),
+        created_by: sessionData.session?.user.id || null,
+      })
+      .select('id, activity_type, content, created_at, created_by')
+      .single();
+    if (!error && data) {
+      setLeadActivities(current => [data, ...current]);
+      setNewNote('');
+    }
+    setSavingLead(false);
+  };
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLeads();
 
     // Set up real-time subscription
     if (supabase) {
+      supabase
+        .from('admin_profiles')
+        .select('user_id, name, role')
+        .eq('active', true)
+        .then(({ data }) => setAdminProfiles(data || []));
+
       const channel = supabase
         .channel('leads-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => {
@@ -168,7 +227,7 @@ export default function AdminLeads() {
                   <td className="p-5 text-right">
                     <div className="flex justify-end gap-2">
                       <button 
-                        onClick={() => setSelectedLead(lead)}
+                        onClick={() => openLead(lead)}
                         className="p-2 text-slate-400 hover:text-primary transition-all rounded-lg hover:bg-blue-50"
                         title="Ver detalhes"
                       >
@@ -272,7 +331,7 @@ export default function AdminLeads() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[2rem] border border-slate-200 shadow-2xl overflow-hidden"
+              className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-slate-200 bg-white shadow-2xl"
             >
               <div className="p-8 border-b border-slate-100 flex justify-between items-start">
                 <div>
@@ -311,6 +370,14 @@ export default function AdminLeads() {
                     <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1">Data de Cadastro</label>
                     <p className="text-slate-900">{new Date(selectedLead.created_at).toLocaleString('pt-BR')}</p>
                   </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1">Origem / Campanha</label>
+                    <p className="text-slate-900">
+                      {selectedLead.origem || 'site'}
+                      {selectedLead.utm_campaign ? ` • ${selectedLead.utm_campaign}` : ''}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">{selectedLead.pagina_origem || 'Página não identificada'}</p>
+                  </div>
                 </div>
                 <div className="space-y-6">
                   <div>
@@ -322,18 +389,101 @@ export default function AdminLeads() {
                 </div>
               </div>
 
-              <div className="p-8 bg-slate-50 border-t border-slate-100 flex justify-end gap-4">
+              <div className="grid gap-6 border-t border-slate-100 bg-slate-50/70 p-8 md:grid-cols-2">
+                <div className="space-y-4">
+                  <h3 className="font-bold text-slate-950">Acompanhamento comercial</h3>
+                  <label className="block space-y-2">
+                    <span className="text-xs font-bold text-slate-600">Responsável</span>
+                    <select
+                      value={selectedLead.assigned_to || ''}
+                      onChange={event => setSelectedLead((lead: any) => ({ ...lead, assigned_to: event.target.value }))}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                    >
+                      <option value="">Não atribuído</option>
+                      {adminProfiles.map(profile => (
+                        <option key={profile.user_id} value={profile.user_id}>{profile.name}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block space-y-2">
+                    <span className="text-xs font-bold text-slate-600">Próximo contato</span>
+                    <input
+                      type="datetime-local"
+                      value={selectedLead.next_contact_at ? new Date(selectedLead.next_contact_at).toISOString().slice(0, 16) : ''}
+                      onChange={event => setSelectedLead((lead: any) => ({ ...lead, next_contact_at: event.target.value ? new Date(event.target.value).toISOString() : null }))}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                    />
+                  </label>
+                  <label className="block space-y-2">
+                    <span className="text-xs font-bold text-slate-600">Anotações internas</span>
+                    <textarea
+                      rows={4}
+                      value={selectedLead.internal_notes || ''}
+                      onChange={event => setSelectedLead((lead: any) => ({ ...lead, internal_notes: event.target.value }))}
+                      className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                      placeholder="Resumo da negociação, necessidades e próximos passos..."
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={saveLeadWorkspace}
+                    disabled={savingLead}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+                  >
+                    {savingLead ? 'Salvando...' : 'Salvar acompanhamento'}
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-bold text-slate-950">Histórico de atividades</h3>
+                  <div className="flex gap-2">
+                    <input
+                      value={newNote}
+                      onChange={event => setNewNote(event.target.value)}
+                      placeholder="Adicionar uma observação..."
+                      className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                    />
+                    <button type="button" onClick={addLeadNote} disabled={savingLead || !newNote.trim()} className="rounded-xl bg-slate-950 px-4 text-white disabled:opacity-40">
+                      <span className="material-symbols-outlined">add</span>
+                    </button>
+                  </div>
+                  <div className="max-h-72 space-y-3 overflow-y-auto">
+                    {leadActivities.map(activity => (
+                      <div key={activity.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                        <p className="text-sm text-slate-700">{activity.content}</p>
+                        <p className="mt-2 text-xs text-slate-400">{new Date(activity.created_at).toLocaleString('pt-BR')}</p>
+                      </div>
+                    ))}
+                    {leadActivities.length === 0 && (
+                      <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Nenhuma atividade registrada.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 bg-white border-t border-slate-100 flex flex-wrap justify-end gap-3">
                 <button 
                   onClick={() => setSelectedLead(null)}
-                  className="px-6 py-2.5 rounded-full text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition-colors"
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 >
                   Fechar
                 </button>
+                {selectedLead.telefone && (
+                  <a
+                    href={`https://wa.me/${String(selectedLead.telefone).replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700"
+                  >
+                    <span className="material-symbols-outlined text-lg">chat</span>
+                    WhatsApp
+                  </a>
+                )}
                 <a 
                   href={`mailto:${selectedLead.email}`}
-                  className="bg-primary text-white hover:bg-blue-700 !py-2.5 !px-8 rounded-full text-sm uppercase tracking-widest font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center"
+                  className="bg-primary text-white hover:bg-blue-700 py-2.5 px-5 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center"
                 >
-                  Responder via E-mail
+                  Enviar e-mail
                 </a>
               </div>
             </motion.div>

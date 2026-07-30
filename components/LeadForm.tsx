@@ -12,14 +12,30 @@ export default function LeadForm({ buttonText }: { buttonText: string }) {
     
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
+    const query = new URLSearchParams(window.location.search);
+
+    // Honeypot: bots commonly fill every available field.
+    if (formData.get('website')) {
+      setStatus('success');
+      form.reset();
+      return;
+    }
     
     const leadData = {
       nome: formData.get('nome') as string,
       email: formData.get('email') as string,
+      telefone: formData.get('telefone') as string,
       empresa: formData.get('empresa') as string,
       cargo: formData.get('cargo') as string,
+      interesse: formData.get('interesse') as string,
       mensagem: formData.get('desafio') as string,
-      status: 'novo'
+      status: 'novo',
+      origem: query.get('utm_source') || 'site',
+      pagina_origem: window.location.pathname,
+      utm_source: query.get('utm_source'),
+      utm_medium: query.get('utm_medium'),
+      utm_campaign: query.get('utm_campaign'),
+      consent_at: new Date().toISOString(),
     };
 
     try {
@@ -66,6 +82,36 @@ export default function LeadForm({ buttonText }: { buttonText: string }) {
           />
         </div>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="space-y-2">
+          <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Telefone / WhatsApp</label>
+          <input
+            required
+            name="telefone"
+            type="tel"
+            autoComplete="tel"
+            className="w-full bg-secondary border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all placeholder:text-muted-foreground/30"
+            placeholder="(11) 99999-9999"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Principal interesse</label>
+          <select
+            required
+            name="interesse"
+            defaultValue=""
+            className="w-full bg-secondary border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+          >
+            <option value="" disabled>Selecione uma opção</option>
+            <option value="motor_colossus">Motor Colossus</option>
+            <option value="portal_incentivos">Portal de Incentivos</option>
+            <option value="consultoria">Consultoria especializada</option>
+            <option value="demonstracao">Agendar demonstração</option>
+            <option value="outro">Outro assunto</option>
+          </select>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="space-y-2">
@@ -100,11 +146,30 @@ export default function LeadForm({ buttonText }: { buttonText: string }) {
           placeholder="Descreva brevemente sua necessidade estratégica..."
         ></textarea>
       </div>
+
+      <label className="mb-8 flex cursor-pointer items-start gap-3 text-sm leading-6 text-muted-foreground">
+        <input
+          required
+          name="privacidade"
+          type="checkbox"
+          className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+        />
+        <span>
+          Concordo com o uso dos meus dados para que a AdvR responda a esta solicitação, de acordo com sua política de privacidade.
+        </span>
+      </label>
+
+      <div className="hidden" aria-hidden="true">
+        <label>
+          Não preencha este campo
+          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
       
       {status === 'success' && (
         <div className="mb-8 p-6 bg-neon/10 border border-neon/20 text-neon rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2">
           <span className="material-symbols-outlined">check_circle</span>
-          <span className="font-bold">Estratégia recebida. Nossa equipe de elite entrará em contato em breve.</span>
+          <span className="font-bold">Solicitação recebida. Nossa equipe entrará em contato em breve.</span>
         </div>
       )}
       
@@ -123,7 +188,7 @@ export default function LeadForm({ buttonText }: { buttonText: string }) {
         {status === 'loading' ? (
           <>
             <span className="material-symbols-outlined animate-spin">progress_activity</span>
-            Processando Dados...
+            Enviando...
           </>
         ) : (
           buttonText
@@ -131,7 +196,7 @@ export default function LeadForm({ buttonText }: { buttonText: string }) {
       </button>
       
       <p className="text-center text-[10px] text-muted-foreground mt-6 uppercase tracking-widest font-bold">
-        Sua privacidade é nossa prioridade. Dados protegidos por criptografia enterprise.
+        Seus dados serão utilizados somente para responder a esta solicitação.
       </p>
     </form>
   );

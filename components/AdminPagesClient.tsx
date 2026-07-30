@@ -3,13 +3,23 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminPageEditor from '@/components/AdminPageEditor';
+import PageBlocksRenderer from '@/components/PageBlocksRenderer';
 import * as motion from "motion/react-client";
 import { supabase } from '@/lib/db';
+
+interface PageMetadata {
+  id?: string;
+  meta_title: string;
+  meta_description: string;
+  og_image_url: string;
+  no_index: boolean;
+}
 
 interface PageData {
   title: string;
   slug: string;
   blocks: any[];
+  metadata: PageMetadata;
 }
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -22,6 +32,16 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [editedMetadata, setEditedMetadata] = useState<PageMetadata>({
+    meta_title: '',
+    meta_description: '',
+    og_image_url: '',
+    no_index: false,
+  });
+  const [showPreview, setShowPreview] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [revisions, setRevisions] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const selectedPage = pages.find(p => p.slug === selectedSlug);
 
@@ -32,19 +52,30 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
   useEffect(() => {
     if (selectedPage) {
       setEditedBlocks(selectedPage.blocks);
+      setEditedMetadata(selectedPage.metadata);
     }
   }, [selectedSlug, selectedPage]);
 
-  const hasChanges = JSON.stringify(editedBlocks) !== JSON.stringify(selectedPage?.blocks);
+  const hasTransientBlocks = editedBlocks.some(block => !UUID_PATTERN.test(block.id || ''));
+  const metadataChanged =
+    JSON.stringify(editedMetadata) !== JSON.stringify(selectedPage?.metadata);
+  const hasChanges =
+    JSON.stringify(editedBlocks) !== JSON.stringify(selectedPage?.blocks) ||
+    metadataChanged ||
+    hasTransientBlocks;
   const changedBlocksCount = editedBlocks.filter(block => {
+    if (!UUID_PATTERN.test(block.id || '')) {
+      return true;
+    }
+
     const originalBlock = selectedPage?.blocks.find(original =>
-      UUID_PATTERN.test(block.id || '')
-        ? original.id === block.id
-        : original.block_name === block.block_name
+      original.id === block.id
     );
 
     return JSON.stringify(block) !== JSON.stringify(originalBlock);
   }).length;
+  const isHomeSelected = selectedPage?.slug === '/';
+  const requiresInitialHomePublish = isHomeSelected && hasTransientBlocks;
 
   useEffect(() => {
     if (!hasChanges) return;
@@ -69,7 +100,34 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
   const handleDiscard = () => {
     if (selectedPage) {
       setEditedBlocks(selectedPage.blocks);
+      setEditedMetadata(selectedPage.metadata);
     }
+  };
+
+  const loadHistory = async () => {
+    if (!supabase || !selectedPage?.metadata.id) return;
+    setLoadingHistory(true);
+    const { data, error } = await supabase
+      .from('content_revisions')
+      .select('id, blocks, metadata, note, created_at, created_by')
+      .eq('page_id', selectedPage.metadata.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) {
+      setSaveError(error.message);
+    } else {
+      setRevisions(data || []);
+      setShowHistory(true);
+    }
+    setLoadingHistory(false);
+  };
+
+  const restoreRevision = (revision: any) => {
+    if (!window.confirm('Carregar esta versão no editor? Ela só irá ao site depois de publicar.')) return;
+    setEditedBlocks(revision.blocks || []);
+    setEditedMetadata(current => ({ ...current, ...(revision.metadata || {}) }));
+    setShowHistory(false);
   };
 
   const handlePublish = async () => {
@@ -79,23 +137,35 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
     setSaveError(null);
     try {
       if (supabase) {
-        let pageId: string | null = null;
         const blocksToSave = JSON.parse(JSON.stringify(editedBlocks));
+        const shouldPersistLayoutBaseline =
+          selectedPage.slug === '/' &&
+          blocksToSave.some((block: any) => !UUID_PATTERN.test(block.id || ''));
 
-        if (blocksToSave.some((block: any) => !UUID_PATTERN.test(block.id || ''))) {
-          const { data: pageRecord, error: pageError } = await supabase
-            .from('pages')
-            .select('id')
-            .eq('slug', selectedPage.slug)
-            .maybeSingle();
+        const { data: pageRecord, error: pageError } = await supabase
+          .from('pages')
+          .select('id')
+          .eq('slug', selectedPage.slug)
+          .maybeSingle();
 
           if (pageError) throw pageError;
           if (!pageRecord) {
             throw new Error(`A página "${selectedPage.slug}" não foi encontrada no Supabase.`);
           }
 
-          pageId = pageRecord.id;
-        }
+        const pageId = pageRecord.id;
+        const { data: sessionData } = await supabase.auth.getSession();
+        const actorId = sessionData.session?.user.id || null;
+
+        const { error: revisionError } = await supabase.from('content_revisions').insert({
+          page_id: pageId,
+          page_slug: selectedPage.slug,
+          blocks: selectedPage.blocks,
+          metadata: selectedPage.metadata,
+          note: 'Versão anterior à publicação',
+          created_by: actorId,
+        });
+        if (revisionError) throw revisionError;
 
         // Update each block that has changed (content or order_index)
         for (let index = 0; index < blocksToSave.length; index++) {
@@ -153,7 +223,7 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
             block.page_id = pageId;
           }
           
-          if (!createdNow && (contentChanged || orderChanged)) {
+          if (!createdNow && (contentChanged || orderChanged || shouldPersistLayoutBaseline)) {
             const { data: updatedBlock, error } = await supabase
               .from('page_blocks')
               .update({ 
@@ -171,15 +241,41 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
           }
         }
 
+        const { error: metadataError } = await supabase
+          .from('pages')
+          .update({
+            meta_title: editedMetadata.meta_title || null,
+            meta_description: editedMetadata.meta_description || null,
+            og_image_url: editedMetadata.og_image_url || null,
+            no_index: editedMetadata.no_index,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', pageId);
+        if (metadataError) throw metadataError;
+
+        await supabase.from('activity_log').insert({
+          actor_id: actorId,
+          action: 'page_published',
+          entity_type: 'page',
+          entity_id: pageId,
+          details: {
+            slug: selectedPage.slug,
+            changed_blocks: changedBlocksCount,
+            metadata_changed: metadataChanged,
+          },
+        });
+
         const savedBlocks = JSON.parse(JSON.stringify(blocksToSave));
+        const savedMetadata = JSON.parse(JSON.stringify(editedMetadata));
 
         // Keep the local comparison baseline in sync without mutating props.
         setPages(currentPages => currentPages.map(page =>
           page.slug === selectedPage.slug
-            ? { ...page, blocks: savedBlocks }
+            ? { ...page, blocks: savedBlocks, metadata: savedMetadata }
             : page
         ));
         setEditedBlocks(savedBlocks);
+        setEditedMetadata(savedMetadata);
       }
       
       setShowSuccess(true);
@@ -210,20 +306,64 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
             Escolha uma página, altere os campos necessários e publique quando estiver tudo pronto.
           </p>
         </div>
-        <a
-          href={selectedPage?.slug || '/'}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:text-primary hover:border-primary/30 transition-colors"
-        >
-          <span className="material-symbols-outlined text-lg">visibility</span>
-          {hasChanges ? 'Ver versão publicada' : 'Visualizar página'}
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-primary/20 bg-blue-50 text-sm font-semibold text-primary hover:bg-blue-100 transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">preview</span>
+            Pré-visualizar alterações
+          </button>
+          <button
+            type="button"
+            onClick={loadHistory}
+            disabled={loadingHistory}
+            className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:text-primary hover:border-primary/30 transition-colors disabled:opacity-60"
+          >
+            <span className={`material-symbols-outlined text-lg ${loadingHistory ? 'animate-spin' : ''}`}>
+              {loadingHistory ? 'progress_activity' : 'history'}
+            </span>
+            Histórico
+          </button>
+          <a
+            href={selectedPage?.slug || '/'}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:text-primary hover:border-primary/30 transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">open_in_new</span>
+            Ver site publicado
+          </a>
+        </div>
       </header>
+
+      <div className="lg:hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+        <label htmlFor="admin-page-selector" className="block text-xs font-bold text-slate-500 mb-2">
+          Página para editar
+        </label>
+        <div className="relative">
+          <select
+            id="admin-page-selector"
+            value={selectedSlug}
+            onChange={(event) => handleSelectPage(event.target.value)}
+            className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-11 text-sm font-semibold text-slate-900 outline-none transition-colors focus:border-primary focus:ring-4 focus:ring-primary/10"
+          >
+            {pages.map((page) => (
+              <option key={page.slug} value={page.slug}>
+                {page.slug === '/' ? 'Home — Página inicial' : page.title}
+              </option>
+            ))}
+          </select>
+          <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+            expand_more
+          </span>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Sidebar - Pages List */}
-        <aside className="lg:col-span-3">
+        <aside className="hidden lg:block lg:col-span-3">
           <div className="lg:sticky lg:top-28 bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
             <div className="flex items-center justify-between px-3 py-2 mb-1">
               <h2 className="text-xs font-bold text-slate-500">Páginas</h2>
@@ -238,6 +378,8 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => handleSelectPage(p.slug)}
+                  type="button"
+                  aria-current={selectedSlug === p.slug ? 'page' : undefined}
                   className={`w-full text-left px-3 py-3 rounded-xl transition-colors flex items-center justify-between group ${
                     selectedSlug === p.slug 
                       ? 'bg-blue-50 text-primary'
@@ -248,13 +390,17 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
                     <span className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                       selectedSlug === p.slug ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'
                     }`}>
-                      <span className="material-symbols-outlined text-lg">description</span>
+                      <span className="material-symbols-outlined text-lg">
+                        {p.slug === '/' ? 'home' : 'description'}
+                      </span>
                     </span>
                     <span className="min-w-0">
                     <span className={`block font-semibold text-sm truncate ${selectedSlug === p.slug ? 'text-slate-950' : 'text-slate-700'}`}>
-                      {p.title}
+                      {p.slug === '/' ? 'Home' : p.title}
                     </span>
-                    <span className="block text-xs text-slate-400 truncate">{p.slug}</span>
+                    <span className="block text-xs text-slate-400 truncate">
+                      {p.slug === '/' ? 'Página inicial · /' : p.slug}
+                    </span>
                     </span>
                   </div>
                   <span className={`material-symbols-outlined text-lg ${selectedSlug === p.slug ? 'text-primary' : 'text-slate-300'}`}>
@@ -283,21 +429,118 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
+              {requiresInitialHomePublish && (
+                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-primary mt-0.5">home</span>
+                    <div>
+                      <h2 className="font-bold text-slate-950">A Home está pronta para ser ativada</h2>
+                      <p className="text-sm text-slate-600 mt-1">
+                        Publique uma vez para salvar os novos blocos e disponibilizar todas as configurações.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handlePublish}
+                    disabled={isSaving}
+                    className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-blue-600 disabled:cursor-wait disabled:opacity-60"
+                  >
+                    <span className={`material-symbols-outlined text-lg ${isSaving ? 'animate-spin' : ''}`}>
+                      {isSaving ? 'progress_activity' : 'publish'}
+                    </span>
+                    {isSaving ? 'Publicando...' : 'Ativar melhorias da Home'}
+                  </button>
+                </div>
+              )}
+
+              <details className="group rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 sm:px-6">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-primary">search</span>
+                    <div>
+                      <h2 className="font-bold text-slate-950">SEO e compartilhamento</h2>
+                      <p className="text-sm text-slate-500">Configure como esta página aparece no Google e nas redes sociais.</p>
+                    </div>
+                  </div>
+                  <span className="material-symbols-outlined text-slate-400 transition-transform group-open:rotate-180">expand_more</span>
+                </summary>
+                <div className="grid gap-5 border-t border-slate-100 p-5 sm:grid-cols-2 sm:p-6">
+                  <label className="space-y-2">
+                    <span className="text-xs font-bold text-slate-600">Título para buscas</span>
+                    <input
+                      value={editedMetadata.meta_title}
+                      onChange={event => setEditedMetadata(current => ({ ...current, meta_title: event.target.value }))}
+                      maxLength={60}
+                      placeholder={selectedPage.title}
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                    <span className="block text-right text-xs text-slate-400">{editedMetadata.meta_title.length}/60</span>
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-bold text-slate-600">Imagem de compartilhamento</span>
+                    <input
+                      value={editedMetadata.og_image_url}
+                      onChange={event => setEditedMetadata(current => ({ ...current, og_image_url: event.target.value }))}
+                      placeholder="https://..."
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                  </label>
+                  <label className="space-y-2 sm:col-span-2">
+                    <span className="text-xs font-bold text-slate-600">Descrição para buscas</span>
+                    <textarea
+                      value={editedMetadata.meta_description}
+                      onChange={event => setEditedMetadata(current => ({ ...current, meta_description: event.target.value }))}
+                      maxLength={160}
+                      rows={3}
+                      className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                    <span className="block text-right text-xs text-slate-400">{editedMetadata.meta_description.length}/160</span>
+                  </label>
+                  <label className="flex items-start gap-3 rounded-xl bg-slate-50 p-4 sm:col-span-2">
+                    <input
+                      type="checkbox"
+                      checked={editedMetadata.no_index}
+                      onChange={event => setEditedMetadata(current => ({ ...current, no_index: event.target.checked }))}
+                      className="mt-1"
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-slate-800">Ocultar esta página dos mecanismos de busca</span>
+                      <span className="text-xs text-slate-500">Use apenas para páginas que não devem aparecer no Google.</span>
+                    </span>
+                  </label>
+                </div>
+              </details>
+
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-5 sm:px-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <h2 className="text-xl font-display font-bold text-slate-950">{selectedPage.title}</h2>
                     <p className="text-slate-500 text-sm mt-1">Edite os blocos na ordem em que aparecem no site.</p>
                   </div>
-                  <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg ${
-                    hasChanges ? 'text-amber-700 bg-amber-50' : 'text-emerald-700 bg-emerald-50'
-                  }`}>
-                    <span className="material-symbols-outlined text-base">
-                      {hasChanges ? 'edit' : 'check_circle'}
-                    </span>
-                    {hasChanges
-                      ? `${changedBlocksCount} ${changedBlocksCount === 1 ? 'bloco alterado' : 'blocos alterados'}`
-                      : 'Conteúdo publicado'}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg ${
+                      hasChanges ? 'text-amber-700 bg-amber-50' : 'text-emerald-700 bg-emerald-50'
+                    }`}>
+                      <span className="material-symbols-outlined text-base">
+                        {hasChanges ? 'edit' : 'check_circle'}
+                      </span>
+                      {hasChanges
+                        ? `${changedBlocksCount} ${changedBlocksCount === 1 ? 'bloco pendente' : 'blocos pendentes'}`
+                        : 'Conteúdo publicado'}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handlePublish}
+                      disabled={isSaving || !hasChanges}
+                      className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                      title={hasChanges ? 'Salvar e publicar as alterações desta página' : 'Não há alterações para publicar'}
+                    >
+                      <span className={`material-symbols-outlined text-base ${isSaving ? 'animate-spin' : ''}`}>
+                        {isSaving ? 'progress_activity' : 'publish'}
+                      </span>
+                      {isSaving ? 'Publicando...' : 'Publicar alterações'}
+                    </button>
                   </div>
                 </div>
                 <div className="p-4 sm:p-6 bg-slate-50/60">
@@ -356,6 +599,74 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
             </div>
           </div>
         </motion.div>
+      )}
+
+      {showPreview && (
+        <div className="fixed inset-0 z-[120] flex flex-col bg-slate-950">
+          <div className="flex items-center justify-between gap-4 border-b border-white/10 bg-slate-950 px-4 py-3 text-white sm:px-6">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">Pré-visualização não publicada</p>
+              <h2 className="font-bold">{selectedPage?.title}</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPreview(false)}
+              className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-white/20"
+            >
+              <span className="material-symbols-outlined">close</span>
+              Fechar
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto bg-background">
+            <PageBlocksRenderer blocks={editedBlocks} />
+          </div>
+        </div>
+      )}
+
+      {showHistory && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Fechar histórico"
+            onClick={() => setShowHistory(false)}
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+          />
+          <div className="relative max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 p-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-950">Histórico da página</h2>
+                <p className="mt-1 text-sm text-slate-500">Restaure uma versão e publique quando estiver pronto.</p>
+              </div>
+              <button type="button" onClick={() => setShowHistory(false)} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-900">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="max-h-[60vh] space-y-3 overflow-y-auto p-6">
+              {revisions.map(revision => (
+                <div key={revision.id} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 p-4">
+                  <div>
+                    <p className="font-semibold text-slate-900">
+                      {new Date(revision.created_at).toLocaleString('pt-BR')}
+                    </p>
+                    <p className="text-sm text-slate-500">{revision.note || 'Versão publicada'}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => restoreRevision(revision)}
+                    className="shrink-0 rounded-xl bg-blue-50 px-4 py-2 text-sm font-bold text-primary hover:bg-blue-100"
+                  >
+                    Restaurar
+                  </button>
+                </div>
+              ))}
+              {revisions.length === 0 && (
+                <div className="py-12 text-center text-slate-500">
+                  O histórico começará a ser criado na próxima publicação.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Success Toast */}

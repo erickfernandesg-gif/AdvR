@@ -10,6 +10,7 @@ import {
 import { format, subDays, startOfDay, isWithinInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'];
 
@@ -60,6 +61,17 @@ export default function AdminDashboard() {
     const converted = leads.filter(l => l.status === 'convertido').length;
     const inProgress = leads.filter(l => l.status === 'em_atendimento').length;
     const lost = leads.filter(l => l.status === 'perdido').length;
+    const now = new Date();
+    const overdueFollowUps = leads.filter(l =>
+      l.next_contact_at &&
+      new Date(l.next_contact_at) < now &&
+      !['convertido', 'perdido'].includes(l.status)
+    ).length;
+    const scheduledFollowUps = leads.filter(l =>
+      l.next_contact_at &&
+      new Date(l.next_contact_at) >= now &&
+      !['convertido', 'perdido'].includes(l.status)
+    ).length;
     
     const conversionRate = total > 0 ? ((converted / total) * 100).toFixed(1) : '0';
 
@@ -101,6 +113,8 @@ export default function AdminDashboard() {
       newLeads,
       converted,
       conversionRate,
+      overdueFollowUps,
+      scheduledFollowUps,
       statusData,
       last15Days,
       topCompanies
@@ -208,6 +222,48 @@ export default function AdminDashboard() {
           <div className="text-xs text-orange-600 font-bold">Leads com status &quot;Novo&quot;</div>
         </motion.div>
       </div>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-display font-bold text-slate-950">Central de pendências</h2>
+            <p className="text-sm text-slate-500">O que merece atenção agora.</p>
+          </div>
+          <Link href="/admin/leads" className="text-sm font-bold text-primary hover:underline">
+            Abrir gestão de leads
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            {
+              icon: 'person_alert',
+              label: 'Novos sem atendimento',
+              value: stats.newLeads,
+              tone: 'bg-amber-50 text-amber-700',
+            },
+            {
+              icon: 'event_busy',
+              label: 'Retornos atrasados',
+              value: stats.overdueFollowUps,
+              tone: 'bg-red-50 text-red-700',
+            },
+            {
+              icon: 'event_upcoming',
+              label: 'Próximos contatos',
+              value: stats.scheduledFollowUps,
+              tone: 'bg-blue-50 text-primary',
+            },
+          ].map(item => (
+            <Link key={item.label} href="/admin/leads" className={`flex items-center gap-4 rounded-2xl p-5 transition-transform hover:-translate-y-0.5 ${item.tone}`}>
+              <span className="material-symbols-outlined text-3xl">{item.icon}</span>
+              <div>
+                <p className="text-2xl font-black">{item.value}</p>
+                <p className="text-sm font-semibold">{item.label}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

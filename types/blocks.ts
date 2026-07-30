@@ -1,12 +1,73 @@
 export interface HeroContent {
   title: string;
   subtitle: string;
+  eyebrow?: string;
+  compact?: boolean;
   primary_button: string;
   secondary_button: string;
   primary_button_link?: string;
   secondary_button_link?: string;
   image_url: string;
   image_link?: string;
+  image_alt?: string;
+}
+
+export interface ValuePropositionItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface ValuePropositionContent {
+  eyebrow?: string;
+  title: string;
+  subtitle: string;
+  items: ValuePropositionItem[];
+}
+
+export interface HighlightCardContent {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  stat?: string;
+  stat_label?: string;
+}
+
+export interface CTAContent {
+  eyebrow?: string;
+  title: string;
+  subtitle: string;
+  button_text: string;
+  button_link?: string;
+  secondary_text?: string;
+  secondary_link?: string;
+}
+
+export interface AudienceItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface AudienceContent {
+  eyebrow?: string;
+  title: string;
+  subtitle: string;
+  items: AudienceItem[];
+}
+
+export interface CaseStudyContent {
+  eyebrow?: string;
+  title: string;
+  subtitle: string;
+  problem_title: string;
+  problem: string;
+  solution_title: string;
+  solution: string;
+  result_title: string;
+  result: string;
+  button_text?: string;
+  button_link?: string;
 }
 
 export interface BentoCard {
@@ -17,6 +78,7 @@ export interface BentoCard {
 }
 
 export interface BentoContent {
+  eyebrow?: string;
   title: string;
   subtitle: string;
   cards: BentoCard[];
@@ -152,10 +214,15 @@ export type BlockContent =
   | BlogHighlightContent 
   | SocialProofContent
   | ROICalculatorContent
-  | PortalFeaturesContent;
+  | PortalFeaturesContent
+  | ValuePropositionContent
+  | HighlightCardContent
+  | CTAContent
+  | AudienceContent
+  | CaseStudyContent;
 
 export interface PageBlock {
-  id: string;
+  id?: string;
   block_name: string;
   content: any; // Using any here for the union dispatch, but components will be strictly typed
 }

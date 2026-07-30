@@ -45,32 +45,7 @@ export default function Testimonials({ content }: { content: any }) {
     loadTestimonials();
   }, []);
 
-  const displayTestimonials = testimonials.length > 0 ? testimonials : [
-    {
-      id: 'fallback-1',
-      nome: 'Carlos Silva',
-      empresa: 'Diretor de Vendas, TechCorp',
-      texto: 'A implementação do Motor Colossus transformou completamente a forma como gerenciamos as comissões. A transparência e a precisão dos cálculos aumentaram a motivação da equipe de vendas em 40% no primeiro trimestre.',
-      img_url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200&h=200',
-      created_at: new Date().toISOString()
-    },
-    {
-      id: 'fallback-2',
-      nome: 'Mariana Costa',
-      empresa: 'CHRO, Global Retail',
-      texto: 'A AdvR não entregou apenas um software, mas uma consultoria estratégica que redefiniu nossos modelos de incentivo. O suporte local e o profundo conhecimento técnico foram fundamentais para o sucesso do projeto.',
-      img_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200',
-      created_at: new Date().toISOString()
-    },
-    {
-      id: 'fallback-3',
-      nome: 'Roberto Almeida',
-      empresa: 'CFO, Logistix Brasil',
-      texto: 'A capacidade de auditar cada centavo pago em remuneração variável nos deu uma segurança jurídica e financeira sem precedentes. O sistema é robusto e perfeitamente adaptado à complexidade da nossa operação.',
-      img_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200&h=200',
-      created_at: new Date().toISOString()
-    }
-  ];
+  if (loading || testimonials.length === 0) return null;
 
   return (
     <section className="py-24 bg-background relative overflow-hidden">
@@ -102,7 +77,7 @@ export default function Testimonials({ content }: { content: any }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {displayTestimonials.map((testimonial, index) => (
+          {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.id}
               initial={{ opacity: 0, y: 30 }}

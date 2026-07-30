@@ -22,7 +22,7 @@ export default function Footer({ settings }: { settings: any }) {
               )}
             </div>
             <p className="text-muted-foreground mb-10 max-w-md font-light leading-relaxed text-lg">
-              Líder em engenharia de remuneração variável. Transformamos complexidade em performance com tecnologia de elite e precisão matemática.
+              Tecnologia, conhecimento e atendimento próximo para tornar a remuneração variável mais clara, segura e eficiente.
             </p>
             <div className="flex space-x-6">
               {settings?.linkedin_url && (
@@ -50,7 +50,7 @@ export default function Footer({ settings }: { settings: any }) {
               <li><Link href="/empresa" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Sobre a AdvR</Link></li>
               <li><Link href="/solucoes" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Nossas Soluções</Link></li>
               <li><Link href="/portal" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Portal do Cliente</Link></li>
-              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Insights de Elite</Link></li>
+              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Insights</Link></li>
               <li><Link href="/novidades" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Novidades</Link></li>
               <li><Link href="/contato" className="text-muted-foreground hover:text-primary transition-colors font-semibold text-sm uppercase tracking-widest">Fale Conosco</Link></li>
               <li className="pt-4"><Link href="/login" className="text-muted-foreground/50 hover:text-primary transition-colors font-semibold text-xs uppercase tracking-widest">Acesso Restrito (Login)</Link></li>

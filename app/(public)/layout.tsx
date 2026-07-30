@@ -11,10 +11,10 @@ export default async function PublicLayout({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-grow">
+      <Navbar settings={settings} />
+      <div className="flex-grow">
         {children}
-      </main>
+      </div>
       <Footer settings={settings} />
     </div>
   );

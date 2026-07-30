@@ -18,6 +18,11 @@ import SocialProof from './blocks/SocialProof';
 import ROICalculator from './blocks/ROICalculator';
 import Testimonials from './blocks/Testimonials';
 import PortalFeatures from './blocks/PortalFeatures';
+import ValueProposition from './blocks/ValueProposition';
+import HighlightCard from './blocks/HighlightCard';
+import CTASection from './blocks/CTASection';
+import AudienceSection from './blocks/AudienceSection';
+import CaseStudy from './blocks/CaseStudy';
 
 const BLOCK_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = {
   hero_section: HeroSection,
@@ -37,6 +42,11 @@ const BLOCK_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = 
   roi_calculator: ROICalculator,
   testimonials: Testimonials,
   portal_features: PortalFeatures,
+  value_proposition: ValueProposition,
+  highlight_card: HighlightCard,
+  cta_section: CTASection,
+  audience_section: AudienceSection,
+  case_study: CaseStudy,
 };
 
 export default function PageBlocksRenderer({ blocks }: { blocks: PageBlock[] }) {

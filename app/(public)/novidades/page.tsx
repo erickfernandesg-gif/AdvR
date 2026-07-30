@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/db';
+import { getGlobalSettings, supabase } from '@/lib/db';
 import { ExternalLink, Calendar, AlertCircle, Newspaper } from 'lucide-react';
 import { Metadata } from 'next';
 
@@ -21,6 +21,7 @@ interface Novidade {
 export const dynamic = 'force-dynamic';
 
 export default async function NovidadesPage() {
+  const settings = await getGlobalSettings();
   // Fetch data from Supabase
   let novidades: Novidade[] | null = null;
   let error: any = null;
@@ -54,10 +55,10 @@ export default async function NovidadesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pt-32 pb-24 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#F8F9FA] pt-32 pb-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
-        <div className="max-w-3xl mx-auto text-center mb-20">
+        <div className="max-w-3xl mx-auto text-center mb-14">
           <span className="inline-block text-primary font-semibold tracking-widest uppercase text-sm mb-4">
             Fique por dentro
           </span>
@@ -65,8 +66,19 @@ export default async function NovidadesPage() {
             Nossas Novidades
           </h1>
           <p className="text-lg md:text-xl text-slate-600 leading-relaxed">
-            Acompanhe nossas últimas atualizações, artigos e postagens diretamente do nosso LinkedIn.
+            Atualizações, eventos e conteúdos compartilhados pela equipe AdvR.
           </p>
+          {settings.linkedin_url && (
+            <a
+              href={settings.linkedin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-7 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-800 shadow-sm transition-colors hover:border-blue-200 hover:text-primary"
+            >
+              Seguir a AdvR no LinkedIn
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          )}
         </div>
 
         {/* Error State */}
@@ -222,6 +234,6 @@ export default async function NovidadesPage() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

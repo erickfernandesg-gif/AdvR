@@ -6,18 +6,18 @@ import { PortalFeaturesContent } from '@/types/blocks';
 
 export default function PortalFeatures({ content }: { content: PortalFeaturesContent }) {
   return (
-    <section className="py-24 bg-background">
+    <section id="recursos" className="scroll-mt-24 py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-24">
+        <div className="text-center mb-20">
+          <p className="section-eyebrow mb-4">Recursos do Portal</p>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-display font-extrabold text-foreground tracking-tight mb-6"
+            className="section-title"
           >
             {content.title}
           </motion.h2>
-          <div className="w-24 h-1 bg-primary mx-auto rounded-full"></div>
         </div>
 
         <div className="space-y-32">

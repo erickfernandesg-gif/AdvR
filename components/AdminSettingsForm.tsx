@@ -86,27 +86,36 @@ export default function AdminSettingsForm({ initialSettings }: { initialSettings
           }
         }
 
-        console.log('Upserting payload:', finalPayload);
+        const { id, ...values } = finalPayload;
+        const payload = {
+          ...values,
+          updated_at: new Date().toISOString(),
+        };
 
-        const { error } = await supabase
-          .from('global_settings')
-          .upsert(finalPayload);
-          
+        const saveQuery = id
+          ? supabase
+              .from('global_settings')
+              .update(payload)
+              .eq('id', id)
+              .select('*')
+              .single()
+          : supabase
+              .from('global_settings')
+              .insert(payload)
+              .select('*')
+              .single();
+
+        const { data: savedSettings, error } = await saveQuery;
+
         if (error) {
-          console.error('Supabase upsert error:', error);
+          console.error('Supabase settings save error:', error);
           throw error;
         }
-        
-        // Refresh settings to get the ID and other fields if it was a new insert
-        const { data: refreshed } = await supabase
-          .from('global_settings')
-          .select('*')
-          .limit(1)
-          .maybeSingle();
-          
-        if (refreshed) {
-          setSettings(refreshed);
+        if (!savedSettings) {
+          throw new Error('O banco de dados não confirmou o salvamento das configurações.');
         }
+
+        setSettings(savedSettings);
       } else {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }

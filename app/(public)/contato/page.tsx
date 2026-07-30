@@ -1,4 +1,4 @@
-import { getPageBlocks } from '@/lib/db';
+import { getGlobalSettings, getPageBlocks } from '@/lib/db';
 import PageBlocksRenderer from '@/components/PageBlocksRenderer';
 import { buildPageMetadata } from '@/lib/page-seo';
 
@@ -11,7 +11,23 @@ export const generateMetadata = () => buildPageMetadata('/contato', {
 });
 
 export default async function Contato() {
-  const blocks = await getPageBlocks('/contato');
+  const [pageBlocks, settings] = await Promise.all([
+    getPageBlocks('/contato'),
+    getGlobalSettings(),
+  ]);
+
+  const blocks = pageBlocks.map(block => {
+    if (block.block_name !== 'contact_section') return block;
+    const content = block.content as Record<string, any>;
+
+    return {
+      ...block,
+      content: {
+        ...content,
+        location: String(content.location || '').trim() || settings.address,
+      },
+    };
+  });
 
   return (
     <main className="bg-white min-h-screen pb-24">

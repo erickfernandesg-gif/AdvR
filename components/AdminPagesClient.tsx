@@ -28,11 +28,11 @@ export default function AdminPagesClient({ pagesData }: { pagesData: PageData[] 
   const router = useRouter();
   const [pages, setPages] = useState<PageData[]>(pagesData);
   const [selectedSlug, setSelectedSlug] = useState<string>(pagesData[0]?.slug || '');
-  const [editedBlocks, setEditedBlocks] = useState<any[]>([]);
+  const [editedBlocks, setEditedBlocks] = useState<any[]>(() => pagesData[0]?.blocks || []);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [editedMetadata, setEditedMetadata] = useState<PageMetadata>({
+  const [editedMetadata, setEditedMetadata] = useState<PageMetadata>(() => pagesData[0]?.metadata || {
     meta_title: '',
     meta_description: '',
     og_image_url: '',

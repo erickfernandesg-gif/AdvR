@@ -18,3 +18,19 @@ View your app in AI Studio: https://ai.studio/apps/c90451a3-e02d-49ba-90d7-81ac6
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Supabase: evitar pausa por inatividade
+
+O workflow `.github/workflows/supabase-keep-alive.yml` chama diariamente a RPC
+`keep_alive`. Depois de aplicar a migration, configure estes *Actions secrets* no
+repositório do GitHub (Settings → Secrets and variables → Actions):
+
+- `SUPABASE_URL`: a URL do projeto, por exemplo `https://abc.supabase.co`.
+- `SUPABASE_PUBLISHABLE_KEY`: a chave pública/publishable do projeto.
+
+Em seguida, abra **Actions → Supabase keep alive → Run workflow** uma vez para
+validar. A workflow nunca usa `SUPABASE_SERVICE_ROLE_KEY`.
+
+No plano Free, atividade por API normalmente evita a pausa, mas o Supabase não
+garante isso; a garantia oficial de não pausar projetos por inatividade é o plano
+Pro: https://supabase.com/docs/guides/platform/free-project-pausing
